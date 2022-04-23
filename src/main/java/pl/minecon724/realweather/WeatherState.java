@@ -10,7 +10,7 @@ public class WeatherState {
 	
 	// State class
 	
-	public class State {
+	public static class State {
 		
 		// Variables
 		
@@ -26,6 +26,24 @@ public class WeatherState {
 			this.condition = condition;
 			this.level = level;
 			this.simple = simple;
+		}
+
+		public State(Condition condition,
+		            ConditionLevel level) {
+			this.condition = condition;
+			this.level = level;
+			this.simple = null;
+			switch (condition) {
+				case THUNDER:
+				    this.simple = ConditionSimple.THUNDER;
+				case DRIZZLE:
+				case RAIN:
+				case SNOW:
+				    this.simple = ConditionSimple.RAIN;
+				case CLEAR:
+				case CLOUDY:
+					this.simple = ConditionSimple.CLEAR;
+			}
 		}
 	}
 }

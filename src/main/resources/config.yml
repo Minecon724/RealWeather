@@ -1,0 +1,30 @@
+weather:
+  # In which worlds weather control is allowed?
+  # If a world doesn't exist nothing will happen
+  worlds:
+  - world
+  - second_world
+  - third_world
+  # Point for a static location
+  # Fake weather and player locations not implemented yet
+  source: point
+  point:
+    latitude: 41.84201
+    longitude: -89.485937
+
+provider:
+  # Your provider choice
+  # Case insensitive
+  choice: openweathermap
+  # Provider settings here
+  # Unlike the previous option, these are case sensitive
+  openweathermap:
+    apiKey: ''
+  # More providers soon!
+
+settings:
+  # 20 is one second
+  timeBetweenRecheck: 1200
+
+  # Advanced options here
+  timeBeforeInitialRun: 0
