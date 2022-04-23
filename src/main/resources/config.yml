@@ -6,7 +6,7 @@ weather:
   - second_world
   - third_world
   # Point for a static location
-  # Fake weather and player locations not implemented yet
+  # Weather by player's real location soon
   source: point
   point:
     latitude: 41.84201
@@ -23,8 +23,11 @@ provider:
   # More providers soon!
 
 settings:
+  # Delay between rechecking weather
   # 20 is one second
-  timeBetweenRecheck: 1200
+  # Shouldn't affect performance
+  timeBetweenRecheck: 600
 
-  # Advanced options here
+  # Advanced options
   timeBeforeInitialRun: 0
+  debug: true

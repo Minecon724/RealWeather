@@ -1,6 +1,7 @@
 package pl.minecon724.realweather;
 
 import java.util.List;
+import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
@@ -18,9 +19,14 @@ public class RW extends JavaPlugin {
 
 		saveDefaultConfig();
 		config = getConfig();
+
 		ConfigurationSection weatherSec = config.getConfigurationSection("weather");
 		ConfigurationSection providerSec = config.getConfigurationSection("provider");
 		ConfigurationSection settingsSec = config.getConfigurationSection("settings");
+
+		if (settingsSec.getBoolean("debug")) {
+			Bukkit.getLogger().setLevel(Level.ALL);
+		}
 
 		String source = weatherSec.getString("source");
 		ConfigurationSection point = weatherSec.getConfigurationSection("point");
@@ -38,8 +44,8 @@ public class RW extends JavaPlugin {
 			Bukkit.getPluginManager().disablePlugin(this);
 		}
 
-		Provider provider;
-		if (choice == "openweathermap") {
+		Provider provider = null;
+		if (choice.equals("openweathermap")) {
 			Bukkit.getLogger().info("Using OpenWeatherMap as the weather provider");
 			provider = new OpenWeatherMapProvider( providerCfg.getString("apiKey") );
 		}
@@ -53,6 +59,6 @@ public class RW extends JavaPlugin {
 		);
 
 		long end = System.currentTimeMillis();
-		Bukkit.getLogger().info( String.format( this.getName() + "enabled! (%s ms)", Double.toString( Math.ceil(end-start) ) ) );
+		Bukkit.getLogger().info( String.format( this.getName() + " enabled! (%s ms)", Long.toString( end-start ) ) );
 	}
 }
