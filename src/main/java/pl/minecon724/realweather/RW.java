@@ -38,7 +38,7 @@ public class RW extends JavaPlugin {
 			Bukkit.getPluginManager().disablePlugin(this);
 		}
 
-		Provider provider = null;
+		Provider provider;
 		if (choice == "openweathermap") {
 			Bukkit.getLogger().info("Using OpenWeatherMap as the weather provider");
 			provider = new OpenWeatherMapProvider( providerCfg.getString("apiKey") );
