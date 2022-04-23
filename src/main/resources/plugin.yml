@@ -5,3 +5,4 @@ author: Minecon724
 main: pl.minecon724.realweather.RW
 libraries:
   - org.json:json:20220320
+  - org.bstats:bstats-bukkit:3.0.0

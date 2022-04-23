@@ -3,6 +3,7 @@ package pl.minecon724.realweather;
 import java.util.List;
 import java.util.logging.Level;
 
+import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -58,6 +59,8 @@ public class RW extends JavaPlugin {
 			settingsSec.getLong("timeBetweenRecheck")
 		);
 
+		new Metrics(this, 15020);
+		
 		long end = System.currentTimeMillis();
 		this.getLogger().info( String.format( this.getName() + " enabled! (%s ms)", Long.toString( end-start ) ) );
 	}
