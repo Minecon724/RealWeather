@@ -1,6 +1,7 @@
 package pl.minecon724.realweather;
 
 import java.util.List;
+import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
 import org.bukkit.World;
@@ -15,25 +16,27 @@ public class GetStateTask extends BukkitRunnable {
     double pointLatitude;
     double pointLongitude;
     List<String> worlds;
+    Logger logger;
 
     public GetStateTask(
         Provider provider, String source,
         double pointLatitude, double pointLongitude,
-        List<String> worlds
+        List<String> worlds, Logger logger
     ) {
         this.provider = provider;
         this.source = source;
         this.pointLatitude = pointLatitude;
         this.pointLongitude = pointLongitude;
         this.worlds = worlds;
+        this.logger = logger;
     }
 
     @Override
     public void run() {
-        Bukkit.getLogger().fine("Refreshing weather by " + source);
+        logger.fine("Refreshing weather by " + source);
         if (source.equals("point")) {
             State state = provider.request_state(pointLatitude, pointLongitude);
-            Bukkit.getLogger().fine(String.format("Provider returned state %s %s", state.condition.name(), state.level.name()));
+            logger.fine(String.format("Provider returned state %s %s", state.condition.name(), state.level.name()));
             for (String w : worlds) {
                 World world = Bukkit.getWorld(w);
                 if (world == null) continue;

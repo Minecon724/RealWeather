@@ -25,7 +25,7 @@ public class RW extends JavaPlugin {
 		ConfigurationSection settingsSec = config.getConfigurationSection("settings");
 
 		if (settingsSec.getBoolean("debug")) {
-			Bukkit.getLogger().setLevel(Level.ALL);
+			this.getLogger().setLevel(Level.ALL);
 		}
 
 		String source = weatherSec.getString("source");
@@ -39,26 +39,26 @@ public class RW extends JavaPlugin {
 		ConfigurationSection providerCfg = providerSec.getConfigurationSection(choice);
 
 		if (providerCfg == null) {
-			Bukkit.getLogger().severe("Unknown provider: " + choice);
-			Bukkit.getLogger().info("The plugin will disable now");
+			this.getLogger().severe("Unknown provider: " + choice);
+			this.getLogger().info("The plugin will disable now");
 			Bukkit.getPluginManager().disablePlugin(this);
 		}
 
 		Provider provider = null;
 		if (choice.equals("openweathermap")) {
-			Bukkit.getLogger().info("Using OpenWeatherMap as the weather provider");
+			this.getLogger().info("Using OpenWeatherMap as the weather provider");
 			provider = new OpenWeatherMapProvider( providerCfg.getString("apiKey") );
 		}
 		provider.init();
 
 		new GetStateTask(
-			provider, source, pointLatitude, pointLongitude, worlds
+			provider, source, pointLatitude, pointLongitude, worlds, this.getLogger()
 		).runTaskTimerAsynchronously(this, 
 			settingsSec.getLong("timeBeforeInitialRun"),
 			settingsSec.getLong("timeBetweenRecheck")
 		);
 
 		long end = System.currentTimeMillis();
-		Bukkit.getLogger().info( String.format( this.getName() + " enabled! (%s ms)", Long.toString( end-start ) ) );
+		this.getLogger().info( String.format( this.getName() + " enabled! (%s ms)", Long.toString( end-start ) ) );
 	}
 }

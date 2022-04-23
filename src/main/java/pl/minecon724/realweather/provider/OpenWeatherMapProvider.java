@@ -15,7 +15,7 @@ import pl.minecon724.realweather.WeatherState.*;
 public class OpenWeatherMapProvider implements Provider {
 
 	URL endpoint;
-	
+
 	String apiKey;
 	
 	public OpenWeatherMapProvider(String apiKey) {
