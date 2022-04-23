@@ -29,7 +29,7 @@ public class RW extends JavaPlugin {
 		double pointLongitude = point.getDouble("longitude");
 		List<String> worlds = weatherSec.getStringList("worlds");
 
-		String choice = providerSec.getString("provider").toLowerCase();
+		String choice = providerSec.getString("choice").toLowerCase();
 		ConfigurationSection providerCfg = providerSec.getConfigurationSection(choice);
 
 		if (providerCfg == null) {
@@ -40,6 +40,7 @@ public class RW extends JavaPlugin {
 
 		Provider provider = null;
 		if (choice == "openweathermap") {
+			Bukkit.getLogger().info("Using OpenWeatherMap as the weather provider");
 			provider = new OpenWeatherMapProvider( providerCfg.getString("apiKey") );
 		}
 		provider.init();
