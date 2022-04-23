@@ -1,0 +1,5 @@
+name: RealWeather
+version: ${project.version}
+api-version: 1.18
+author: Minecon724
+main: pl.minecon724.realweather.RW
