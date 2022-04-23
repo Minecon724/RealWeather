@@ -1,3 +1,5 @@
 target/
 
+# CLI files
 org.eclipse.*
+.vscode/

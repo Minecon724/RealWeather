@@ -57,6 +57,14 @@
                     <include>org.json:json</include>
                 </includes>
             </artifactSet>
+            <filters>
+              <filter>
+                 <artifact>org.json:*</artifact>
+                 <excludes>
+                    <exclude>META-INF/*.MF</exclude>
+                 </excludes>
+              </filter>
+           </filters>
         </configuration>
     </plugin>
     </plugins>
