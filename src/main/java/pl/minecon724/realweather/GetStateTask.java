@@ -7,6 +7,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import pl.minecon724.realweather.WeatherState.ConditionSimple;
 import pl.minecon724.realweather.WeatherState.State;
 
 public class GetStateTask extends BukkitRunnable {
@@ -40,17 +41,8 @@ public class GetStateTask extends BukkitRunnable {
             for (String w : worlds) {
                 World world = Bukkit.getWorld(w);
                 if (world == null) continue;
-                switch (state.simple) {
-                    case CLEAR:
-                        world.setThundering(false);
-                        world.setStorm(false);
-                    case RAIN:
-                        world.setThundering(false);
-                        world.setStorm(true);
-                    case THUNDER:
-                        world.setThundering(false);
-                        world.setStorm(true);
-                }
+                world.setThundering(state.simple == ConditionSimple.THUNDER ? true : false);
+                world.setStorm(state.simple == ConditionSimple.CLEAR ? false : true);
             }
         }
     }
