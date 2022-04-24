@@ -4,7 +4,6 @@ import java.util.List;
 
 import com.maxmind.geoip2.WebServiceClient;
 
-import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -69,8 +68,7 @@ public class RW extends JavaPlugin {
 			settingsSec.getLong("timeBetweenRecheck")
 		);
 
-		// new Metrics(this, 15020);
-		// ^^ https://www.spigotmc.org/threads/554949/
+		new Metrics(this, 15020);
 		
 		long end = System.currentTimeMillis();
 		this.getLogger().info( String.format( this.getName() + " enabled! (%s ms)", Long.toString( end-start ) ) );
