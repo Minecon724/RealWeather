@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import com.maxmind.geoip2.WebServiceClient;
+import com.maxmind.geoip2.exception.AddressNotFoundException;
 import com.maxmind.geoip2.record.Location;
 
 import org.bukkit.Bukkit;
@@ -54,12 +55,14 @@ public class GetStateTask extends BukkitRunnable {
                 world.setStorm(state.simple == ConditionSimple.CLEAR ? false : true);
             }
         } else if (source.equals("player")) {
+            InetAddress playerIp = null;
+            Player curr = null;
             try {
-                InetAddress playerIp;
                 Location location;
                 State state;
                 double lat, lon;
                 for (Player p : Bukkit.getOnlinePlayers()) {
+                    curr = p;
                     playerIp = p.getAddress().getAddress();
                     location = client.city(playerIp).getLocation();
                     lat = location.getLatitude();
@@ -73,6 +76,9 @@ public class GetStateTask extends BukkitRunnable {
                     ));
                     p.setPlayerWeather(state.simple == ConditionSimple.CLEAR ? WeatherType.CLEAR : WeatherType.DOWNFALL);
                 }
+            } catch (AddressNotFoundException e) {
+                logger.warning(String.format("%s's IP address (%s) is not a public IP address, therefore we can't retrieve their location.", curr.getName(), playerIp.toString()));
+                logger.warning("Check your proxy settings if you believe that this is an error.");
             } catch (Exception e) {
                 e.printStackTrace();
             }
