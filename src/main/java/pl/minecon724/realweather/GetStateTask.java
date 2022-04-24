@@ -44,10 +44,10 @@ public class GetStateTask extends BukkitRunnable {
 
     @Override
     public void run() {
-        logger.fine("Refreshing weather by " + source);
+        logger.info("Refreshing weather by " + source);
         if (source.equals("point")) {
             State state = provider.request_state(pointLatitude, pointLongitude);
-            logger.fine(String.format("Provider returned state %s %s", state.condition.name(), state.level.name()));
+            logger.info(String.format("Provider returned state %s %s (%s)", state.condition.name(), state.level.name(), state.simple.name()));
             for (String w : worlds) {
                 World world = Bukkit.getWorld(w);
                 if (world == null) continue;
@@ -67,11 +67,11 @@ public class GetStateTask extends BukkitRunnable {
                     location = client.city(playerIp).getLocation();
                     lat = location.getLatitude();
                     lon = location.getLongitude();
-                    logger.fine( String.format(
+                    logger.info( String.format(
                         "%s's location is %f, %f", p.getName(), lat, lon
                         ));
                     state = provider.request_state(lat, lon);
-                    logger.fine( String.format(
+                    logger.info( String.format(
                         "Provider returned state %s %s for %s", state.condition.name(), state.level.name(), p.getName()
                     ));
                     p.setPlayerWeather(state.simple == ConditionSimple.CLEAR ? WeatherType.CLEAR : WeatherType.DOWNFALL);

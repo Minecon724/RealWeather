@@ -63,11 +63,13 @@ public class OpenWeatherMapProvider implements Provider {
 				case 210:
 				case 230:
 					level = ConditionLevel.LIGHT;
+					break;
 				case 201:
 				case 211:
 				case 221:
 				case 231:
 					level = ConditionLevel.MODERATE;
+					break;
 				case 202:
 				case 212:
 				case 232:
@@ -79,11 +81,13 @@ public class OpenWeatherMapProvider implements Provider {
 				case 300:
 				case 310:
 					level = ConditionLevel.LIGHT;
+					break;
 				case 301:
 				case 311:
 				case 313:
 				case 321:
 					level = ConditionLevel.MODERATE;
+					break;
 				case 302:
 				case 312:
 				case 314:
@@ -95,14 +99,17 @@ public class OpenWeatherMapProvider implements Provider {
 				case 500:
 				case 520:
 					level = ConditionLevel.LIGHT;
+					break;
 				case 501:
 				case 511:
 				case 521:
 				case 531:
 					level = ConditionLevel.MODERATE;
+					break;
 				case 502:
 				case 522:
 					level = ConditionLevel.HEAVY;
+					break;
 				case 503:
 				case 504:
 					level = ConditionLevel.EXTREME;
@@ -115,12 +122,14 @@ public class OpenWeatherMapProvider implements Provider {
 				case 615:
 				case 620:
 					level = ConditionLevel.LIGHT;
+					break;
 				case 601:
 				case 611:
 				case 613:
 				case 616:
 				case 621:
 					level = ConditionLevel.MODERATE;
+					break;
 				case 602:
 				case 622:
 					level = ConditionLevel.HEAVY;
@@ -130,10 +139,13 @@ public class OpenWeatherMapProvider implements Provider {
 			switch (stateId) {
 				case 801:
 					level = ConditionLevel.LIGHT;
+					break;
 				case 802:
 					level = ConditionLevel.MODERATE;
+					break;
 				case 803:
 					level = ConditionLevel.HEAVY;
+					break;
 				case 804:
 					level = ConditionLevel.EXTREME;
 			}

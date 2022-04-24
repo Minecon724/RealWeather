@@ -33,4 +33,3 @@ settings:
 
   # Advanced options
   timeBeforeInitialRun: 0
-  debug: true

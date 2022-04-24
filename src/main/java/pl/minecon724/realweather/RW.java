@@ -1,6 +1,7 @@
 package pl.minecon724.realweather;
 
 import java.util.List;
+import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 
 import com.maxmind.geoip2.WebServiceClient;
@@ -27,11 +28,6 @@ public class RW extends JavaPlugin {
 		ConfigurationSection weatherSec = config.getConfigurationSection("weather");
 		ConfigurationSection providerSec = config.getConfigurationSection("provider");
 		ConfigurationSection settingsSec = config.getConfigurationSection("settings");
-
-		if (settingsSec.getBoolean("debug")) {
-			this.getLogger().setLevel(Level.ALL);
-			this.getLogger().fine("Debug info will appear in the console");
-		}
 
 		String source = weatherSec.getString("source");
 		ConfigurationSection point = weatherSec.getConfigurationSection("point");

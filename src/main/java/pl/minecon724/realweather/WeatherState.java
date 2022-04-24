@@ -36,10 +36,12 @@ public class WeatherState {
 			switch (condition) {
 				case THUNDER:
 				    this.simple = ConditionSimple.THUNDER;
+					break;
 				case DRIZZLE:
 				case RAIN:
 				case SNOW:
 				    this.simple = ConditionSimple.RAIN;
+					break;
 				case CLEAR:
 				case CLOUDY:
 					this.simple = ConditionSimple.CLEAR;
