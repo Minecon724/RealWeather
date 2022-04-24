@@ -6,6 +6,7 @@ import java.util.logging.Logger;
 
 import com.maxmind.geoip2.WebServiceClient;
 import com.maxmind.geoip2.exception.AddressNotFoundException;
+import com.maxmind.geoip2.model.CityResponse;
 import com.maxmind.geoip2.record.Location;
 
 import org.bukkit.Bukkit;
@@ -26,12 +27,15 @@ public class GetStateTask extends BukkitRunnable {
     List<String> worlds;
     Logger logger;
     WebServiceClient client;
+    boolean broadcast;
+    boolean debug, debugDox;
 
     public GetStateTask(
         Provider provider, String source,
         double pointLatitude, double pointLongitude,
         List<String> worlds, Logger logger,
-        WebServiceClient client
+        WebServiceClient client, boolean broadcast,
+        boolean debug, boolean debugDox
     ) {
         this.provider = provider;
         this.source = source;
@@ -40,6 +44,9 @@ public class GetStateTask extends BukkitRunnable {
         this.worlds = worlds;
         this.logger = logger;
         this.client = client;
+        this.broadcast = broadcast;
+        this.debug = debug;
+        this.debugDox = debugDox;
     }
 
     @Override
@@ -47,7 +54,7 @@ public class GetStateTask extends BukkitRunnable {
         logger.info("Refreshing weather by " + source);
         if (source.equals("point")) {
             State state = provider.request_state(pointLatitude, pointLongitude);
-            logger.info(String.format("Provider returned state %s %s (%s)", state.condition.name(), state.level.name(), state.simple.name()));
+            if (debug) logger.info(String.format("Provider returned state %s %s (%s)", state.condition.name(), state.level.name(), state.simple.name()));
             for (String w : worlds) {
                 World world = Bukkit.getWorld(w);
                 if (world == null) continue;
@@ -61,20 +68,21 @@ public class GetStateTask extends BukkitRunnable {
                 Location location;
                 State state;
                 double lat, lon;
+                CityResponse city;
                 for (Player p : Bukkit.getOnlinePlayers()) {
                     curr = p;
                     playerIp = p.getAddress().getAddress();
-                    location = client.city(playerIp).getLocation();
+                    city = client.city(playerIp);
+                    location = city.getLocation();
                     lat = location.getLatitude();
                     lon = location.getLongitude();
-                    logger.info( String.format(
-                        "%s's location is %f, %f", p.getName(), lat, lon
-                        ));
+                    if (debugDox) logger.info( String.format( "%s's location is %f, %f", p.getName(), lat, lon ));
                     state = provider.request_state(lat, lon);
-                    logger.info( String.format(
+                    if (debug) logger.info( String.format(
                         "Provider returned state %s %s for %s", state.condition.name(), state.level.name(), p.getName()
                     ));
                     p.setPlayerWeather(state.simple == ConditionSimple.CLEAR ? WeatherType.CLEAR : WeatherType.DOWNFALL);
+                    if (broadcast) p.sendMessage( String.format("%s %s in %s", state.level.name(), state.condition.name(), city.getCity().getName()) );
                 }
             } catch (AddressNotFoundException e) {
                 logger.warning(String.format("%s's IP address (%s) is not a public IP address, therefore we can't retrieve their location.", curr.getName(), playerIp.toString()));

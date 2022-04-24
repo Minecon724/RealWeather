@@ -30,6 +30,10 @@ settings:
   # 20 is one second
   # Shouldn't affect performance
   timeBetweenRecheck: 600
+  # Whether to broadcast messages about weather updates
+  broadcast: false
 
   # Advanced options
   timeBeforeInitialRun: 0
+  debug: false
+  debugAllowDox: false

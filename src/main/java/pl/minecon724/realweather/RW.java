@@ -1,8 +1,6 @@
 package pl.minecon724.realweather;
 
 import java.util.List;
-import java.util.logging.ConsoleHandler;
-import java.util.logging.Level;
 
 import com.maxmind.geoip2.WebServiceClient;
 
@@ -60,15 +58,19 @@ public class RW extends JavaPlugin {
 			client = new WebServiceClient.Builder(accId, license).host("geolite.info").build();
 		}
 
+		boolean broadcast = settingsSec.getBoolean("broadcast");
+		boolean debug = settingsSec.getBoolean("debug");
+		boolean debugDox = settingsSec.getBoolean("debugDox");
+
 		new GetStateTask(
-			provider, source, pointLatitude, pointLongitude, worlds, this.getLogger(), client
+			provider, source, pointLatitude, pointLongitude, worlds, this.getLogger(), client, broadcast, debug, debugDox
 		).runTaskTimerAsynchronously(this, 
 			settingsSec.getLong("timeBeforeInitialRun"),
 			settingsSec.getLong("timeBetweenRecheck")
 		);
 
 		// new Metrics(this, 15020);
-		// bstat disabled cuz error :(
+		// ^^ https://www.spigotmc.org/threads/554949/
 		
 		long end = System.currentTimeMillis();
 		this.getLogger().info( String.format( this.getName() + " enabled! (%s ms)", Long.toString( end-start ) ) );
