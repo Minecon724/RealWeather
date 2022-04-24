@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import com.maxmind.geoip2.WebServiceClient;
-import com.maxmind.geoip2.model.CityResponse;
 import com.maxmind.geoip2.record.Location;
 
 import org.bukkit.Bukkit;

@@ -5,8 +5,8 @@ weather:
   - world
   - second_world
   - third_world
-  # Point for a static location
-  # Weather by player's real location soon
+  # "point" for a static location
+  # "player" for using the player's location
   source: point
   point:
     latitude: 41.84201

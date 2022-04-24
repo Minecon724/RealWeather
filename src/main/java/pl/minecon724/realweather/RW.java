@@ -1,6 +1,5 @@
 package pl.minecon724.realweather;
 
-import java.io.File;
 import java.util.List;
 import java.util.logging.Level;
 
@@ -31,6 +30,7 @@ public class RW extends JavaPlugin {
 
 		if (settingsSec.getBoolean("debug")) {
 			this.getLogger().setLevel(Level.ALL);
+			this.getLogger().fine("Debug info will appear in the console");
 		}
 
 		String source = weatherSec.getString("source");
@@ -58,10 +58,10 @@ public class RW extends JavaPlugin {
 		provider.init();
 
 		if (source.equals("player")) {
-			this.getLogger().info("This product includes GeoLite2 data created by MaxMind, available from https://maxmind.com");
+			this.getLogger().info("Initializing GeoLite2 by MaxMind because we need it for retrieving players locations.");
 			int accId = player.getInt("geolite2_accountId");
 			String license = player.getString("geolite2_apiKey");
-			client = new WebServiceClient.Builder(accId, license).build();
+			client = new WebServiceClient.Builder(accId, license).host("geolite.info").build();
 		}
 
 		new GetStateTask(
@@ -71,7 +71,8 @@ public class RW extends JavaPlugin {
 			settingsSec.getLong("timeBetweenRecheck")
 		);
 
-		new Metrics(this, 15020);
+		// new Metrics(this, 15020);
+		// bstat disabled cuz error :(
 		
 		long end = System.currentTimeMillis();
 		this.getLogger().info( String.format( this.getName() + " enabled! (%s ms)", Long.toString( end-start ) ) );
