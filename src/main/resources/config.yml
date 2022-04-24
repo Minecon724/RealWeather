@@ -11,6 +11,9 @@ weather:
   point:
     latitude: 41.84201
     longitude: -89.485937
+  player:
+    geolite2_accountId: 710438
+    geolite2_apiKey: 'qLeseHp4QNQcqRGn'
 
 provider:
   # Your provider choice
@@ -19,7 +22,7 @@ provider:
   # Provider settings here
   # Unlike the previous option, these are case sensitive
   openweathermap:
-    apiKey: ''
+    apiKey: 'd3d37fd3511ef1d4b44c7d574e9b56b8'
   # More providers soon!
 
 settings:

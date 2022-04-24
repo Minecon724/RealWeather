@@ -6,3 +6,4 @@ main: pl.minecon724.realweather.RW
 libraries:
   - org.json:json:20220320
   - org.bstats:bstats-bukkit:3.0.0
+  - com.maxmind.geoip2:geoip2:3.0.1

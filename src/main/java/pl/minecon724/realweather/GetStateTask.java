@@ -1,10 +1,17 @@
 package pl.minecon724.realweather;
 
+import java.net.InetAddress;
 import java.util.List;
 import java.util.logging.Logger;
 
+import com.maxmind.geoip2.WebServiceClient;
+import com.maxmind.geoip2.model.CityResponse;
+import com.maxmind.geoip2.record.Location;
+
 import org.bukkit.Bukkit;
+import org.bukkit.WeatherType;
 import org.bukkit.World;
+import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import pl.minecon724.realweather.WeatherState.ConditionSimple;
@@ -18,11 +25,13 @@ public class GetStateTask extends BukkitRunnable {
     double pointLongitude;
     List<String> worlds;
     Logger logger;
+    WebServiceClient client;
 
     public GetStateTask(
         Provider provider, String source,
         double pointLatitude, double pointLongitude,
-        List<String> worlds, Logger logger
+        List<String> worlds, Logger logger,
+        WebServiceClient client
     ) {
         this.provider = provider;
         this.source = source;
@@ -30,6 +39,7 @@ public class GetStateTask extends BukkitRunnable {
         this.pointLongitude = pointLongitude;
         this.worlds = worlds;
         this.logger = logger;
+        this.client = client;
     }
 
     @Override
@@ -44,7 +54,29 @@ public class GetStateTask extends BukkitRunnable {
                 world.setThundering(state.simple == ConditionSimple.THUNDER ? true : false);
                 world.setStorm(state.simple == ConditionSimple.CLEAR ? false : true);
             }
+        } else if (source.equals("player")) {
+            try {
+                InetAddress playerIp;
+                Location location;
+                State state;
+                double lat, lon;
+                for (Player p : Bukkit.getOnlinePlayers()) {
+                    playerIp = p.getAddress().getAddress();
+                    location = client.city(playerIp).getLocation();
+                    lat = location.getLatitude();
+                    lon = location.getLongitude();
+                    logger.fine( String.format(
+                        "%s's location is %f, %f", p.getName(), lat, lon
+                        ));
+                    state = provider.request_state(lat, lon);
+                    logger.fine( String.format(
+                        "Provider returned state %s %s for %s", state.condition.name(), state.level.name(), p.getName()
+                    ));
+                    p.setPlayerWeather(state.simple == ConditionSimple.CLEAR ? WeatherType.CLEAR : WeatherType.DOWNFALL);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
-    
 }

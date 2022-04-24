@@ -1,7 +1,10 @@
 package pl.minecon724.realweather;
 
+import java.io.File;
 import java.util.List;
 import java.util.logging.Level;
+
+import com.maxmind.geoip2.WebServiceClient;
 
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
@@ -13,6 +16,7 @@ import pl.minecon724.realweather.provider.OpenWeatherMapProvider;
 
 public class RW extends JavaPlugin {
 	FileConfiguration config;
+	WebServiceClient client = null;
 	
 	@Override
 	public void onEnable() {
@@ -31,6 +35,7 @@ public class RW extends JavaPlugin {
 
 		String source = weatherSec.getString("source");
 		ConfigurationSection point = weatherSec.getConfigurationSection("point");
+		ConfigurationSection player = weatherSec.getConfigurationSection("player");
 
 		double pointLatitude = point.getDouble("latitude");
 		double pointLongitude = point.getDouble("longitude");
@@ -52,8 +57,15 @@ public class RW extends JavaPlugin {
 		}
 		provider.init();
 
+		if (source.equals("player")) {
+			this.getLogger().info("This product includes GeoLite2 data created by MaxMind, available from https://maxmind.com");
+			int accId = player.getInt("geolite2_accountId");
+			String license = player.getString("geolite2_apiKey");
+			client = new WebServiceClient.Builder(accId, license).build();
+		}
+
 		new GetStateTask(
-			provider, source, pointLatitude, pointLongitude, worlds, this.getLogger()
+			provider, source, pointLatitude, pointLongitude, worlds, this.getLogger(), client
 		).runTaskTimerAsynchronously(this, 
 			settingsSec.getLong("timeBeforeInitialRun"),
 			settingsSec.getLong("timeBetweenRecheck")
