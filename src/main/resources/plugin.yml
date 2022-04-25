@@ -1,6 +1,6 @@
 name: RealWeather
 version: ${project.version}
-api-version: 1.18
+api-version: 1.13
 author: Minecon724
 main: pl.minecon724.realweather.RW
 libraries:
