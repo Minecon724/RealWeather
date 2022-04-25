@@ -13,8 +13,9 @@ import pl.minecon724.realweather.provider.OpenWeatherMapProvider;
 
 public class RW extends JavaPlugin {
 	FileConfiguration config;
+
 	WebServiceClient client = null;
-	
+
 	@Override
 	public void onEnable() {
 		long start = System.currentTimeMillis();
@@ -29,6 +30,7 @@ public class RW extends JavaPlugin {
 		String source = weatherSec.getString("source");
 		ConfigurationSection point = weatherSec.getConfigurationSection("point");
 		ConfigurationSection player = weatherSec.getConfigurationSection("player");
+		ConfigurationSection map = weatherSec.getConfigurationSection("map");
 
 		double pointLatitude = point.getDouble("latitude");
 		double pointLongitude = point.getDouble("longitude");
@@ -57,12 +59,17 @@ public class RW extends JavaPlugin {
 			client = new WebServiceClient.Builder(accId, license).host("geolite.info").build();
 		}
 
+		double scale_lat = map.getDouble("scale_lat");
+		double scale_lon = map.getDouble("scale_lon");
+		int on_exceed = map.getInt("on_exceed");
+
 		boolean broadcast = settingsSec.getBoolean("broadcast");
 		boolean debug = settingsSec.getBoolean("debug");
 		boolean debugDox = settingsSec.getBoolean("debugDox");
 
 		new GetStateTask(
-			provider, source, pointLatitude, pointLongitude, worlds, this.getLogger(), client, broadcast, debug, debugDox
+			provider, source, pointLatitude, pointLongitude, worlds, this.getLogger(),
+			client, broadcast, debug, debugDox, scale_lat, scale_lon, on_exceed
 		).runTaskTimerAsynchronously(this, 
 			settingsSec.getLong("timeBeforeInitialRun"),
 			settingsSec.getLong("timeBetweenRecheck")

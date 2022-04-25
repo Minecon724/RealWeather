@@ -5,8 +5,9 @@ weather:
   - world
   - second_world
   - third_world
-  # "point" for a static location
-  # "player" for using the player's location
+  # "point" - static location
+  # "player" - player's location (fake weather)
+  # "map" - world resembles a real-world globe
   source: point
   point:
     latitude: 41.84201
@@ -14,6 +15,22 @@ weather:
   player:
     geolite2_accountId: 710438
     geolite2_apiKey: 'qLeseHp4QNQcqRGn'
+  map:
+    # Man I've really suffered while working on this one (i hate maths)
+    # Info:
+    # Valid latitude range: -90 to 90
+    # Valid longitude range: -180 to 180
+    # 1 degree of latitude and longitude is about 111 km
+    # The defaults here assume 1 block = ~1 km
+    # Latitude scale, 1 block = <scale> degrees
+    scale_lat: 0.009
+    # Longitude scale, 1 block = <scale> degrees
+    scale_lon: 0.009
+    # What to do if player exceeds the range specified above
+    # 1 - do nothing (clamp to nearest allowed value)
+    # 2 - wrap the number
+    # for example; if the calculated player's latitude is 94 degrees (bad), it'll be converted to -86 degrees (good)
+    on_exceed: 2
 
 provider:
   # Your provider choice
