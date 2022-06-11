@@ -126,7 +126,7 @@ public class GetStateTask extends BukkitRunnable {
                 coords = mapUtils.playerPosAsCoords(p.getLocation(), scaleLat, scaleLon, onExceed);
                 lon = coords[0];
                 lat = coords[1];
-                logger.info( String.format( "%s's location is %f, %f", p.getName(), lat, lon ));
+                if (debug) logger.info( String.format( "%s's location is %f, %f", p.getName(), lat, lon ));
                 state = provider.request_state(lat, lon);
                 if (debug) logger.info( String.format(
                         "Provider returned state %s %s for %f, %f", state.condition.name(), state.level.name(), lat, lon

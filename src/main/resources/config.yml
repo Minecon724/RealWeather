@@ -42,6 +42,19 @@ provider:
     apiKey: 'd3d37fd3511ef1d4b44c7d574e9b56b8'
   # More providers soon!
 
+realtime:
+  enabled: true
+  worlds:
+  - world
+  # "auto" to use server's timezone
+  # Alternatively choose one of these: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List
+  timezone: 'auto'
+  # x day cycles / 24 hrs
+  timeScale: 1.0
+  # How often should we recalculate the time (in ticks)
+  # Very minimal, if any, impact on performance
+  interval: 1
+
 settings:
   # Delay between rechecking weather
   # 20 is one second

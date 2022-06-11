@@ -1,5 +1,6 @@
 package pl.minecon724.realweather;
 
+import java.time.ZoneId;
 import java.util.List;
 
 import com.maxmind.geoip2.WebServiceClient;
@@ -9,7 +10,9 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import pl.minecon724.realweather.commands.RealWeatherCommand;
 import pl.minecon724.realweather.provider.OpenWeatherMapProvider;
+import pl.minecon724.realweather.realtime.RTTask;
 import pl.minecon724.realweather.thirdparty.Metrics;
 
 public class RW extends JavaPlugin {
@@ -28,6 +31,7 @@ public class RW extends JavaPlugin {
 		ConfigurationSection providerSec = config.getConfigurationSection("provider");
 		ConfigurationSection settingsSec = config.getConfigurationSection("settings");
 		ConfigurationSection messagesSec = config.getConfigurationSection("messages");
+		ConfigurationSection realtimeSec = config.getConfigurationSection("realtime");
 
 		String source = weatherSec.getString("source");
 		ConfigurationSection point = weatherSec.getConfigurationSection("point");
@@ -61,6 +65,8 @@ public class RW extends JavaPlugin {
 			client = new WebServiceClient.Builder(accId, license).host("geolite.info").build();
 		}
 
+		getCommand("realweather").setExecutor(new RealWeatherCommand());
+
 		double scale_lat = map.getDouble("scale_lat");
 		double scale_lon = map.getDouble("scale_lon");
 		int on_exceed = map.getInt("on_exceed");
@@ -76,6 +82,20 @@ public class RW extends JavaPlugin {
 			settingsSec.getLong("timeBeforeInitialRun"),
 			settingsSec.getLong("timeBetweenRecheck")
 		);
+
+		if (realtimeSec.getBoolean("enabled")) {
+			ZoneId zone;
+			try {
+				zone = ZoneId.of(realtimeSec.getString("timezone"));
+			} catch (Exception e) {
+				zone = ZoneId.systemDefault();
+			}
+			new RTTask(
+				realtimeSec.getDouble("timeScale"),
+				zone,
+				realtimeSec.getStringList("worlds")
+			).runTaskTimerAsynchronously(this, 0, realtimeSec.getLong("interval"));
+		}
 
 		Metrics metrics = new Metrics(this, 15020);
 		metrics.addCustomChart(new Metrics.SimplePie("source_type", () -> {
