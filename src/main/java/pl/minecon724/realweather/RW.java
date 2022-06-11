@@ -10,6 +10,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import pl.minecon724.realweather.provider.OpenWeatherMapProvider;
+import pl.minecon724.thirdparty.Metrics;
 
 public class RW extends JavaPlugin {
 	FileConfiguration config;

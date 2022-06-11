@@ -60,7 +60,7 @@ public class GetStateTask extends BukkitRunnable {
 
     @Override
     public void run() {
-        logger.info("Refreshing weather by " + source);
+        if (debug) logger.info("Refreshing weather by " + source);
         if (source.equals("point")) {
             State state = provider.request_state(pointLatitude, pointLongitude);
             if (debug) logger.info(String.format("Provider returned state %s %s (%s)", state.condition.name(), state.level.name(), state.simple.name()));

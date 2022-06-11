@@ -12,7 +12,7 @@
  *
  * Violations will result in a ban of your plugin and account from bStats.
  */
-package pl.minecon724.realweather;
+package pl.minecon724.realweather.thirdparty;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;

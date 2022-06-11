@@ -10,7 +10,7 @@ public class MapUtils {
     public double[] playerPosAsCoords(Location loc, double scaleLat, double scaleLon, int onExceed) {
         double[] out = new double[2];
         out[0] = loc.getX() * scaleLon;
-        out[1] = loc.getZ() * scaleLat;
+        out[1] = -loc.getZ() * scaleLat;
         if (onExceed == 1) {
             out[0] = Math.max(-180.0, Math.min(180.0, out[0]));
             out[1] = Math.max(-90.0, Math.min(90.0, out[1]));
