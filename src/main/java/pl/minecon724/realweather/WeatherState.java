@@ -17,7 +17,7 @@ public class WeatherState {
 		Condition condition;
 		ConditionLevel level;
 		ConditionSimple simple;
-		
+
 		// Constructor
 		
 		public State(Condition condition,

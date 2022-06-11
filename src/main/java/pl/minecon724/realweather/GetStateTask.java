@@ -9,6 +9,9 @@ import com.maxmind.geoip2.exception.AddressNotFoundException;
 import com.maxmind.geoip2.model.CityResponse;
 import com.maxmind.geoip2.record.Location;
 
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
+
 import org.bukkit.Bukkit;
 import org.bukkit.WeatherType;
 import org.bukkit.World;
@@ -27,11 +30,11 @@ public class GetStateTask extends BukkitRunnable {
     List<String> worlds;
     Logger logger;
     WebServiceClient client;
-    boolean broadcast;
     boolean debug, debugDox;
     double scaleLat, scaleLon;
     int onExceed;
     boolean actionbar;
+    String actionbarInfo;
 
     MapUtils mapUtils = new MapUtils();
 
@@ -39,10 +42,11 @@ public class GetStateTask extends BukkitRunnable {
         Provider provider, String source,
         double pointLatitude, double pointLongitude,
         List<String> worlds, Logger logger,
-        WebServiceClient client, boolean broadcast,
+        WebServiceClient client,
         boolean debug, boolean debugDox,
         double scaleLat, double scaleLon,
-        int onExceed, boolean actionbar
+        int onExceed, boolean actionbar,
+        String actionbarInfo
     ) {
         this.provider = provider;
         this.source = source;
@@ -51,13 +55,13 @@ public class GetStateTask extends BukkitRunnable {
         this.worlds = worlds;
         this.logger = logger;
         this.client = client;
-        this.broadcast = broadcast;
         this.debug = debug;
         this.debugDox = debugDox;
         this.scaleLat = scaleLat;
         this.scaleLon = scaleLon;
         this.onExceed = onExceed;
         this.actionbar = actionbar;
+        this.actionbarInfo = actionbarInfo;
     }
 
     // That's a lot of variables
@@ -75,8 +79,9 @@ public class GetStateTask extends BukkitRunnable {
                 world.setStorm(state.simple == ConditionSimple.CLEAR ? false : true);
             }
             if (actionbar) {
+                String[] data = {state.level.name(), state.condition.name()};
                 for (Player p : Bukkit.getOnlinePlayers()) {
-
+                    p.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ConfigUtils.parsePlaceholders("messages.actionbarInfo", actionbarInfo, data)));
                 }
             }
         } else if (source.equals("player")) {
@@ -100,7 +105,12 @@ public class GetStateTask extends BukkitRunnable {
                         "Provider returned state %s %s for %s", state.condition.name(), state.level.name(), p.getName()
                     ));
                     p.setPlayerWeather(state.simple == ConditionSimple.CLEAR ? WeatherType.CLEAR : WeatherType.DOWNFALL);
-                    if (broadcast) p.sendMessage( String.format("%s %s in %s", state.level.name(), state.condition.name(), city.getCity().getName()) );
+                    if (actionbar) {
+                        String[] data = {state.level.name(), state.condition.name()};
+                        p.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(
+                            ConfigUtils.parsePlaceholders("messages.actionbarInfo", actionbarInfo, data))
+                        );
+                    }
                 }
             } catch (AddressNotFoundException e) {
                 logger.warning(String.format("%s's IP address (%s) is not a public IP address, therefore we can't retrieve their location.", curr.getName(), playerIp.toString()));
@@ -121,9 +131,12 @@ public class GetStateTask extends BukkitRunnable {
                 if (debug) logger.info( String.format(
                         "Provider returned state %s %s for %f, %f", state.condition.name(), state.level.name(), lat, lon
                     ));
-                if (broadcast) p.sendMessage( String.format("%s %s in %f, %f", 
-                    state.level.name(), state.condition.name(), lat, lon
-                ) );
+                if (actionbar) {
+                    String[] data = {state.level.name(), state.condition.name()};
+                    p.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(
+                        ConfigUtils.parsePlaceholders("messages.actionbarInfo", actionbarInfo, data))
+                    );
+                }
             }
         }
     }

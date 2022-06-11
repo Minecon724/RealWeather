@@ -27,6 +27,7 @@ public class RW extends JavaPlugin {
 		ConfigurationSection weatherSec = config.getConfigurationSection("weather");
 		ConfigurationSection providerSec = config.getConfigurationSection("provider");
 		ConfigurationSection settingsSec = config.getConfigurationSection("settings");
+		ConfigurationSection messagesSec = config.getConfigurationSection("messages");
 
 		String source = weatherSec.getString("source");
 		ConfigurationSection point = weatherSec.getConfigurationSection("point");
@@ -64,20 +65,20 @@ public class RW extends JavaPlugin {
 		double scale_lon = map.getDouble("scale_lon");
 		int on_exceed = map.getInt("on_exceed");
 
-		boolean broadcast = settingsSec.getBoolean("broadcast");
 		boolean debug = settingsSec.getBoolean("debug");
 		boolean debugDox = settingsSec.getBoolean("debugDox");
 
 		new GetStateTask(
 			provider, source, pointLatitude, pointLongitude, worlds, this.getLogger(),
-			client, broadcast, debug, debugDox, scale_lat, scale_lon, on_exceed
+			client, debug, debugDox, scale_lat, scale_lon, on_exceed,
+			settingsSec.getBoolean("actionbar"), ConfigUtils.color(messagesSec.getString("actionbarInfo"))
 		).runTaskTimerAsynchronously(this, 
 			settingsSec.getLong("timeBeforeInitialRun"),
 			settingsSec.getLong("timeBetweenRecheck")
 		);
 
 		Metrics metrics = new Metrics(this, 15020);
-		metrics.addCustomChart(new SimplePie("source_type", () -> {
+		metrics.addCustomChart(new Metrics.SimplePie("source_type", () -> {
 			return source;
 		}));
 		

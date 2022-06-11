@@ -47,8 +47,6 @@ settings:
   # 20 is one second
   # Shouldn't affect performance
   timeBetweenRecheck: 600
-  # Whether to broadcast messages about weather updates
-  broadcast: false
   # Whether to display an actionbar containing info
   actionbar: true
 
