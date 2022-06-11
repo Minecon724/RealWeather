@@ -49,8 +49,15 @@ settings:
   timeBetweenRecheck: 600
   # Whether to broadcast messages about weather updates
   broadcast: false
+  # Whether to display an actionbar containing info
+  actionbar: true
 
   # Advanced options
   timeBeforeInitialRun: 0
   debug: false
   debugAllowDox: false
+
+messages:
+  # %weather_full% - full state description, such as "extreme thunder"
+  # %weather% - short state description, such as "rain"
+  actionbarInfo: "&b%weather_full%"

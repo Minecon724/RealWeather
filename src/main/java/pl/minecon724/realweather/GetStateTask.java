@@ -31,6 +31,7 @@ public class GetStateTask extends BukkitRunnable {
     boolean debug, debugDox;
     double scaleLat, scaleLon;
     int onExceed;
+    boolean actionbar;
 
     MapUtils mapUtils = new MapUtils();
 
@@ -41,7 +42,7 @@ public class GetStateTask extends BukkitRunnable {
         WebServiceClient client, boolean broadcast,
         boolean debug, boolean debugDox,
         double scaleLat, double scaleLon,
-        int onExceed
+        int onExceed, boolean actionbar
     ) {
         this.provider = provider;
         this.source = source;
@@ -56,7 +57,10 @@ public class GetStateTask extends BukkitRunnable {
         this.scaleLat = scaleLat;
         this.scaleLon = scaleLon;
         this.onExceed = onExceed;
+        this.actionbar = actionbar;
     }
+
+    // That's a lot of variables
 
     @Override
     public void run() {
@@ -69,6 +73,11 @@ public class GetStateTask extends BukkitRunnable {
                 if (world == null) continue;
                 world.setThundering(state.simple == ConditionSimple.THUNDER ? true : false);
                 world.setStorm(state.simple == ConditionSimple.CLEAR ? false : true);
+            }
+            if (actionbar) {
+                for (Player p : Bukkit.getOnlinePlayers()) {
+
+                }
             }
         } else if (source.equals("player")) {
             InetAddress playerIp = null;

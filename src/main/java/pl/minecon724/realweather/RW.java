@@ -10,7 +10,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import pl.minecon724.realweather.provider.OpenWeatherMapProvider;
-import pl.minecon724.thirdparty.Metrics;
+import pl.minecon724.realweather.thirdparty.Metrics;
 
 public class RW extends JavaPlugin {
 	FileConfiguration config;
@@ -54,7 +54,7 @@ public class RW extends JavaPlugin {
 		provider.init();
 
 		if (source.equals("player")) {
-			this.getLogger().info("Initializing GeoLite2 by MaxMind because we need it for retrieving players locations.");
+			this.getLogger().info("Initializing GeoLite2 by MaxMind because we need it for retrieving players real world locations.");
 			int accId = player.getInt("geolite2_accountId");
 			String license = player.getString("geolite2_apiKey");
 			client = new WebServiceClient.Builder(accId, license).host("geolite.info").build();
@@ -76,7 +76,10 @@ public class RW extends JavaPlugin {
 			settingsSec.getLong("timeBetweenRecheck")
 		);
 
-		new Metrics(this, 15020);
+		Metrics metrics = new Metrics(this, 15020);
+		metrics.addCustomChart(new SimplePie("source_type", () -> {
+			return source;
+		}));
 		
 		long end = System.currentTimeMillis();
 		this.getLogger().info( String.format( this.getName() + " enabled! (%s ms)", Long.toString( end-start ) ) );
