@@ -2,6 +2,7 @@ package pl.minecon724.realweather.realtime;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,10 +28,10 @@ public class RTTask extends BukkitRunnable {
 
     @Override
     public void run() {
-        double time = OffsetDateTime.now(timezone).toEpochSecond() / (72 * timeScale) - 18000;
-        Bukkit.getLogger().info(Double.toString(time));
+        long now = ZonedDateTime.now(timezone).toInstant().getEpochSecond();
+        double time = now / 72 - 18000;
         for (World w : worlds) {
-            w.setTime((long)time);
+            w.setFullTime((long)time);
         }
     }
 }

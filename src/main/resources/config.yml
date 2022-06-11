@@ -43,13 +43,14 @@ provider:
   # More providers soon!
 
 realtime:
-  enabled: true
+  enabled: false
   worlds:
   - world
   # "auto" to use server's timezone
   # Alternatively choose one of these: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List
   timezone: 'auto'
   # x day cycles / 24 hrs
+  # Not implemented yet
   timeScale: 1.0
   # How often should we recalculate the time (in ticks)
   # Very minimal, if any, impact on performance
