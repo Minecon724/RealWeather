@@ -14,7 +14,7 @@ weather:
     longitude: -89.485937
   player:
     geolite2_accountId: 710438
-    geolite2_apiKey: 'qLeseHp4QNQcqRGn'
+    geolite2_apiKey: 'qLeseHp4QNQcqRGn' # Get your own @ https://www.maxmind.com/en/geolite2/signup
   map:
     # Man I've really suffered while working on this one (i hate maths)
     # Info:
@@ -39,7 +39,7 @@ provider:
   # Provider settings here
   # Unlike the previous option, these are case sensitive
   openweathermap:
-    apiKey: 'd3d37fd3511ef1d4b44c7d574e9b56b8'
+    apiKey: 'd3d37fd3511ef1d4b44c7d574e9b56b8' # PLEASE get your own @ https://home.openweathermap.org/users/sign_up
   # More providers soon!
 
 realtime:
