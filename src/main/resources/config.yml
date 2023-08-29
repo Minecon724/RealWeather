@@ -1,23 +1,20 @@
 weather:
-  # In which worlds weather control is allowed?
-  # If a world doesn't exist nothing will happen
   worlds:
   - world
   - second_world
   - third_world
   # "point" - static location
-  # "player" - player's location (fake weather)
+  # "player" - player's IP location (fake weather)
   # "map" - world resembles a real-world globe
   source: point
   point:
     latitude: 41.84201
     longitude: -89.485937
   player:
+    # Get your own @ https://www.maxmind.com/en/geolite2/signup
     geolite2_accountId: 710438
-    geolite2_apiKey: 'qLeseHp4QNQcqRGn' # Get your own @ https://www.maxmind.com/en/geolite2/signup
+    geolite2_apiKey: 'qLeseHp4QNQcqRGn'
   map:
-    # Man I've really suffered while working on this one (i hate maths)
-    # Info:
     # Valid latitude range: -90 to 90
     # Valid longitude range: -180 to 180
     # 1 degree of latitude and longitude is about 111 km
@@ -29,20 +26,19 @@ weather:
     # What to do if player exceeds the range specified above
     # 1 - do nothing (clamp to nearest allowed value)
     # 2 - wrap the number
-    # for example; if the calculated player's latitude is 94 degrees (bad), it'll be converted to -86 degrees (good)
+    # for example; if a player's position on map converts to 94 degrees (out of bounds), it becomes -86 degrees
     on_exceed: 2
 
 provider:
-  # Your provider choice
-  # Case insensitive
+  # Weather provider
   choice: openweathermap
-  # Provider settings here
-  # Unlike the previous option, these are case sensitive
+  # Configure it here
   openweathermap:
     apiKey: 'd3d37fd3511ef1d4b44c7d574e9b56b8' # PLEASE get your own @ https://home.openweathermap.org/users/sign_up
   # More providers soon!
 
 realtime:
+  # warning: this removes sleep
   enabled: false
   worlds:
   - world
@@ -50,15 +46,14 @@ realtime:
   # Alternatively choose one of these: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List
   timezone: 'auto'
   # x day cycles / 24 hrs
-  # Not implemented yet
   timeScale: 1.0
   # How often should we recalculate the time (in ticks)
-  # Very minimal, if any, impact on performance
+  # Very minimal impact on performance
   interval: 1
 
 settings:
   # Delay between rechecking weather
-  # 20 is one second
+  # in ticks, 20 is one second
   # Shouldn't affect performance
   timeBetweenRecheck: 600
   # Whether to display an actionbar containing info
@@ -70,6 +65,7 @@ settings:
   debugAllowDox: false
 
 messages:
+  # settings.actionbar toggles this
   # %weather_full% - full state description, such as "extreme thunder"
   # %weather% - short state description, such as "rain"
   actionbarInfo: "&b%weather_full%"

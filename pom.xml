@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>pl.minecon724</groupId>
   <artifactId>realweather</artifactId>
-  <version>0.4.0</version>
+  <version>0.4.1</version>
 
   <properties>
     <maven.compiler.source>17</maven.compiler.source>
@@ -20,7 +20,7 @@
     <dependency>
       <groupId>org.spigotmc</groupId>
       <artifactId>spigot-api</artifactId>
-      <version>1.18.2-R0.1-SNAPSHOT</version>
+      <version>1.20.1-R0.1-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -32,7 +32,7 @@
     <dependency>
       <groupId>com.maxmind.geoip2</groupId>
       <artifactId>geoip2</artifactId>
-      <version>3.0.1</version>
+      <version>4.1.0</version>
       <scope>provided</scope>
     </dependency>
   </dependencies>

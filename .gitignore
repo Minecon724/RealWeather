@@ -1,5 +1,7 @@
 target/
 
-# CLI files
+# IDE files
 org.eclipse.*
 .vscode/
+.classpath
+.project

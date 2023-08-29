@@ -5,7 +5,7 @@ author: Minecon724
 main: pl.minecon724.realweather.RW
 libraries:
   - org.json:json:20220320
-  - com.maxmind.geoip2:geoip2:3.0.1
+  - com.maxmind.geoip2:geoip2:4.1.0
 commands:
   realweather:
     alias: rw

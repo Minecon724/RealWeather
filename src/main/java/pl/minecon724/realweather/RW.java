@@ -94,7 +94,7 @@ public class RW extends JavaPlugin {
 				realtimeSec.getDouble("timeScale"),
 				zone,
 				realtimeSec.getStringList("worlds")
-			).runTaskTimerAsynchronously(this, 0, realtimeSec.getLong("interval"));
+			).runTaskTimer(this, 0, realtimeSec.getLong("interval"));
 		}
 
 		Metrics metrics = new Metrics(this, 15020);
