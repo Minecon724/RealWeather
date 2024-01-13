@@ -10,10 +10,14 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import pl.minecon724.realweather.commands.RealWeatherCommand;
-import pl.minecon724.realweather.provider.OpenWeatherMapProvider;
+import pl.minecon724.realweather.map.WorldMap;
 import pl.minecon724.realweather.realtime.RTTask;
-import pl.minecon724.realweather.thirdparty.Metrics;
+import pl.minecon724.realweather.weather.GetStateTask;
+import pl.minecon724.realweather.weather.WeatherCommander;
+import pl.minecon724.realweather.weather.exceptions.DisabledException;
+import pl.minecon724.realweather.weather.exceptions.ProviderException;
+import pl.minecon724.realweather.weather.provider.OpenWeatherMapProvider;
+import pl.minecon724.realweather.weather.provider.Provider;
 
 public class RW extends JavaPlugin {
 	FileConfiguration config;
@@ -27,61 +31,18 @@ public class RW extends JavaPlugin {
 		saveDefaultConfig();
 		config = getConfig();
 
-		ConfigurationSection weatherSec = config.getConfigurationSection("weather");
-		ConfigurationSection providerSec = config.getConfigurationSection("provider");
-		ConfigurationSection settingsSec = config.getConfigurationSection("settings");
-		ConfigurationSection messagesSec = config.getConfigurationSection("messages");
-		ConfigurationSection realtimeSec = config.getConfigurationSection("realtime");
-
-		String source = weatherSec.getString("source");
-		ConfigurationSection point = weatherSec.getConfigurationSection("point");
-		ConfigurationSection player = weatherSec.getConfigurationSection("player");
-		ConfigurationSection map = weatherSec.getConfigurationSection("map");
-
-		double pointLatitude = point.getDouble("latitude");
-		double pointLongitude = point.getDouble("longitude");
-		List<String> worlds = weatherSec.getStringList("worlds");
-
-		String choice = providerSec.getString("choice").toLowerCase();
-		ConfigurationSection providerCfg = providerSec.getConfigurationSection(choice);
-
-		if (providerCfg == null) {
-			this.getLogger().severe("Unknown provider: " + choice);
-			this.getLogger().info("The plugin will disable now");
-			Bukkit.getPluginManager().disablePlugin(this);
-		}
-
-		Provider provider = null;
-		if (choice.equals("openweathermap")) {
-			this.getLogger().info("Using OpenWeatherMap as the weather provider");
-			provider = new OpenWeatherMapProvider( providerCfg.getString("apiKey") );
-		}
-		provider.init();
-
-		if (source.equals("player")) {
-			this.getLogger().info("Initializing GeoLite2 by MaxMind because we need it for retrieving players real world locations.");
-			int accId = player.getInt("geolite2_accountId");
-			String license = player.getString("geolite2_apiKey");
-			client = new WebServiceClient.Builder(accId, license).host("geolite.info").build();
-		}
-
-		getCommand("realweather").setExecutor(new RealWeatherCommand());
-
-		double scale_lat = map.getDouble("scale_lat");
-		double scale_lon = map.getDouble("scale_lon");
-		int on_exceed = map.getInt("on_exceed");
-
-		boolean debug = settingsSec.getBoolean("debug");
-		boolean debugDox = settingsSec.getBoolean("debugDox");
-
-		new GetStateTask(
-			provider, source, pointLatitude, pointLongitude, worlds, this.getLogger(),
-			client, debug, debugDox, scale_lat, scale_lon, on_exceed,
-			settingsSec.getBoolean("actionbar"), ConfigUtils.color(messagesSec.getString("actionbarInfo"))
-		).runTaskTimerAsynchronously(this, 
-			settingsSec.getLong("timeBeforeInitialRun"),
-			settingsSec.getLong("timeBetweenRecheck")
+		WorldMap worldMap = WorldMap.fromConfig(
+			config.getConfigurationSection("map")
 		);
+
+		WeatherCommander weatherCommander = new WeatherCommander(worldMap, this);
+		try {
+			weatherCommander.init(
+				config.getConfigurationSection("weather")
+			);
+		} catch (DisabledException e) {
+			getLogger().info("Weather module disabled");
+		} // we leave ProviderException
 
 		if (realtimeSec.getBoolean("enabled")) {
 			ZoneId zone;
@@ -96,11 +57,6 @@ public class RW extends JavaPlugin {
 				realtimeSec.getStringList("worlds")
 			).runTaskTimer(this, 0, realtimeSec.getLong("interval"));
 		}
-
-		Metrics metrics = new Metrics(this, 15020);
-		metrics.addCustomChart(new Metrics.SimplePie("source_type", () -> {
-			return source;
-		}));
 		
 		long end = System.currentTimeMillis();
 		this.getLogger().info( String.format( this.getName() + " enabled! (%s ms)", Long.toString( end-start ) ) );

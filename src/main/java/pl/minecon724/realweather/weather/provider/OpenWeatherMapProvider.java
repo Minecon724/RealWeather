@@ -1,4 +1,4 @@
-package pl.minecon724.realweather.provider;
+package pl.minecon724.realweather.weather.provider;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -9,8 +9,7 @@ import java.nio.charset.Charset;
 
 import org.json.JSONObject;
 
-import pl.minecon724.realweather.Provider;
-import pl.minecon724.realweather.WeatherState.*;
+import pl.minecon724.realweather.weather.WeatherState.*;
 
 public class OpenWeatherMapProvider implements Provider {
 
@@ -30,13 +29,13 @@ public class OpenWeatherMapProvider implements Provider {
 		}
 	}
 
-	public State request_state(double lat, double lon) {
+	public State request_state(double[] coords) {
 		JSONObject json = new JSONObject();
 		
 		try {
 			URL url = new URL(
 				endpoint + String.format("/data/2.5/weather?lat=%s&lon=%s&appid=%s",
-				Double.toString(lat), Double.toString(lon), apiKey
+				Double.toString(coords[0]), Double.toString(coords[1]), apiKey
 			));
 
 			InputStream is = url.openStream();
@@ -152,5 +151,10 @@ public class OpenWeatherMapProvider implements Provider {
 		}
 		State state = new State(condition, level);
 		return state;
+	}
+
+	@Override
+	public String getName() {
+		return "OpenWeatherMap";
 	}
 }

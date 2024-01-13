@@ -1,4 +1,4 @@
-package pl.minecon724.realweather;
+package pl.minecon724.realweather.weather;
 
 public class WeatherState {
 	
@@ -14,9 +14,9 @@ public class WeatherState {
 		
 		// Variables
 		
-		Condition condition;
-		ConditionLevel level;
-		ConditionSimple simple;
+		private Condition condition;
+		private ConditionLevel level;
+		private ConditionSimple simple;
 
 		// Constructor
 		
@@ -46,6 +46,18 @@ public class WeatherState {
 				case CLOUDY:
 					this.simple = ConditionSimple.CLEAR;
 			}
+		}
+
+		public Condition getCondition() {
+			return condition;
+		}
+
+		public ConditionLevel getLevel() {
+			return level;
+		}
+
+		public ConditionSimple getSimple() {
+			return simple;
 		}
 	}
 }

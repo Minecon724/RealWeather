@@ -1,0 +1,5 @@
+- local maxmind
+- account for real sun movement, not just time
+- gh actions
+- readd metrics
+- fix realtime
