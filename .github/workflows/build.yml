@@ -1,5 +1,5 @@
-name: learn-github-actions
-run-name: ${{ github.actor }} is learning GitHub Actions
+name: build
+run-name: Build and package
 on: [push, pull_request]
 jobs:
   build:
@@ -13,10 +13,9 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           architecture: x64
-          cache: maven
 
-      - name: mvn build package
-        run: mvn build package
+      - name: mvn clean package
+        run: mvn clean package
 
       - run: mkdir staging && cp target/*.jar staging
       - uses: actions/upload-artifact@v3
