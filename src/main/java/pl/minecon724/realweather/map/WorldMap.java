@@ -8,18 +8,12 @@ import pl.minecon724.realweather.map.exceptions.GeoIPException;
 public class WorldMap {
     private final Type type;
 
-    private double[] point;
-    private GeoLocator geoLocator;
-    private Globe globe;
+    private Coordinates point;
 
     public WorldMap(Type type,
-                    double[] point,
-                    GeoLocator geoLocator,
-                    Globe globe) {
+            Coordinates point) {
         this.type = type;
         this.point = point;
-        this.geoLocator = geoLocator;
-        this.globe = globe;
     }
 
     public static WorldMap fromConfig(ConfigurationSection config)
@@ -33,43 +27,41 @@ public class WorldMap {
             throw new IllegalArgumentException("Invalid type");
         }
 
-        double[] point = null;
-        GeoLocator geoLocator = null;
-        Globe globe = null;
+        Coordinates point = null;
 
         if (type == Type.POINT) {
-            point = new double[] {
+            point = new Coordinates(
                 config.getDouble("point.latitude"),
                 config.getDouble("point.longitude")
-            };
+            );
 
         } else if (type == Type.PLAYER) {
-            geoLocator = GeoLocator.fromConfig(
+            GeoLocator.init(
                 config.getInt("player.geolite2_accountId"), 
                 config.getString("player.geolite2_api_key")
             );
 
         } else if (type == Type.GLOBE) {
-            globe = new Globe(
+            Globe.init(
                 config.getDouble("globe.scale_latitude"),
                 config.getDouble("globe.scale_longitude"),
                 config.getBoolean("globe.wrap")
             );
         }
 
-        WorldMap worldMap = new WorldMap(type, point, geoLocator, globe);
+        WorldMap worldMap = new WorldMap(type, point);
 
         return worldMap;
 
     }
 
     /**
-     * get player position as coords
+     * get coordinates of player
      * @param player the player
-     * @return latitude, longitude
+     * @return Coordinates
      * @throws GeoIPException 
      */
-    public double[] getPosition(Player player) throws GeoIPException {
+    public Coordinates getCoordinates(Player player) throws GeoIPException {
 
         switch (this.type) {
             case POINT:
@@ -78,10 +70,11 @@ public class WorldMap {
                 if (player.getAddress().getAddress().isAnyLocalAddress())
                     throw new GeoIPException(player.getName() + "'s IP is local, check your proxy settings");
                     
-                return geoLocator.getLocation(
-                    player.getAddress().getAddress());
+                return GeoLocator.getCoordinates(
+                    player.getAddress().getAddress()
+                );
             case GLOBE:
-                return globe.playerPosAsCoords(player.getLocation());
+                return Globe.toCoordiates(player.getLocation());
         }
 
         // this wont happen because we cover each type

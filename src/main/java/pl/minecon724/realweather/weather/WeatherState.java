@@ -59,5 +59,11 @@ public class WeatherState {
 		public ConditionSimple getSimple() {
 			return simple;
 		}
+
+		public boolean equals(State state) {
+			return (state != null
+					&& this.getCondition() == state.getCondition() 
+					&& this.getLevel() == state.getLevel());
+		}
 	}
 }

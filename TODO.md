@@ -3,3 +3,5 @@
 - gh actions
 - readd metrics
 - fix realtime
+- cache cleaning
+- prevent packets

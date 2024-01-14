@@ -2,7 +2,6 @@ package pl.minecon724.realweather.weather;
 
 import org.bukkit.configuration.ConfigurationSection;
 
-import pl.minecon724.realweather.weather.exceptions.ProviderException;
 import pl.minecon724.realweather.weather.provider.OpenWeatherMapProvider;
 import pl.minecon724.realweather.weather.provider.Provider;
 
@@ -15,8 +14,7 @@ public class Providers {
      * @throws ProviderException 
      * @see Provider
      */
-    public static Provider getByName(String name, ConfigurationSection config)
-            throws ProviderException {
+    public static Provider getByName(String name, ConfigurationSection config) {
 
         switch (name) {
             case "openweathermap":
@@ -26,8 +24,7 @@ public class Providers {
         return null;
     }
 
-    public static OpenWeatherMapProvider openWeatherMap(ConfigurationSection config)
-            throws ProviderException {
+    public static OpenWeatherMapProvider openWeatherMap(ConfigurationSection config) {
 
         return new OpenWeatherMapProvider(
             config.getString("apiKey"));

@@ -1,19 +1,20 @@
 package pl.minecon724.realweather.weather;
 
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
-import org.bukkit.WeatherType;
-import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import pl.minecon724.realweather.map.Coordinates;
 import pl.minecon724.realweather.map.WorldMap;
 import pl.minecon724.realweather.map.WorldMap.Type;
 import pl.minecon724.realweather.map.exceptions.GeoIPException;
-import pl.minecon724.realweather.weather.WeatherState.ConditionSimple;
 import pl.minecon724.realweather.weather.WeatherState.State;
+import pl.minecon724.realweather.weather.events.WeatherSyncEvent;
 import pl.minecon724.realweather.weather.provider.Provider;
 
 public class GetStateTask extends BukkitRunnable {
@@ -22,16 +23,17 @@ public class GetStateTask extends BukkitRunnable {
 
     Provider provider;
     WorldMap worldMap;
-    List<World> worlds;
+
+    State storedState;
+    Map<Player, State> playerStoredState = new HashMap<>();
+    PluginManager pluginManager = Bukkit.getPluginManager();
 
     public GetStateTask(
         Provider provider,
-        WorldMap worldMap,
-        List<World> worlds
+        WorldMap worldMap
     ) {
         this.provider = provider;
         this.worldMap = worldMap;
-        this.worlds = worlds;
     }
 
     // That's a lot of variables
@@ -40,32 +42,44 @@ public class GetStateTask extends BukkitRunnable {
     public void run() {
 
         if (worldMap.getType() == Type.POINT) {
-            double[] position;
+            Coordinates coordinates;
             try {
-                position = worldMap.getPosition(null);
+                coordinates = worldMap.getCoordinates(null);
             } catch (GeoIPException e) { return; }
-            State state = provider.request_state(position);
-        
-            for (World world : worlds) {
-                if (world == null) return;
-                world.setThundering(state.getSimple() == ConditionSimple.THUNDER ? true : false);
-                world.setStorm(state.getSimple() == ConditionSimple.CLEAR ? false : true);
+            State state = provider.request_state(coordinates);
+            
+            if (!state.equals(storedState)) {
+                pluginManager.callEvent(
+                    new WeatherSyncEvent(null, storedState, state)
+                );
+
+                storedState = state;
             }
 
         } else {
             for (Player player : Bukkit.getOnlinePlayers()) {
-                double[] position;
+                Coordinates coordinates;
 
                 try {
-                    position = worldMap.getPosition(player);
+                    coordinates = worldMap.getCoordinates(player);
                 } catch (GeoIPException e) {
                     logger.info("GeoIP error for " + player.getName());
                     e.printStackTrace();
                     continue;
                 }
                 
-                State state = provider.request_state(position);
-                player.setPlayerWeather(state.getSimple() == ConditionSimple.CLEAR ? WeatherType.CLEAR : WeatherType.DOWNFALL);
+                State state = provider.request_state(coordinates);
+
+                if (!state.equals(playerStoredState.get(player))) {
+                    pluginManager.callEvent(
+                        new WeatherSyncEvent(
+                            player,
+                            playerStoredState.get(player),
+                            state)
+                    );
+
+                    playerStoredState.put(player, state);
+                }
             }
         }
         

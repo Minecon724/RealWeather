@@ -9,6 +9,7 @@ import java.nio.charset.Charset;
 
 import org.json.JSONObject;
 
+import pl.minecon724.realweather.map.Coordinates;
 import pl.minecon724.realweather.weather.WeatherState.*;
 
 public class OpenWeatherMapProvider implements Provider {
@@ -29,13 +30,13 @@ public class OpenWeatherMapProvider implements Provider {
 		}
 	}
 
-	public State request_state(double[] coords) {
+	public State request_state(Coordinates coordinates) {
 		JSONObject json = new JSONObject();
 		
 		try {
 			URL url = new URL(
 				endpoint + String.format("/data/2.5/weather?lat=%s&lon=%s&appid=%s",
-				Double.toString(coords[0]), Double.toString(coords[1]), apiKey
+				Double.toString(coordinates.latitude), Double.toString(coordinates.longitude), apiKey
 			));
 
 			InputStream is = url.openStream();

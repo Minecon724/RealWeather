@@ -1,15 +1,12 @@
 package pl.minecon724.realweather.weather;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 
 import pl.minecon724.realweather.RW;
 import pl.minecon724.realweather.map.WorldMap;
 import pl.minecon724.realweather.weather.exceptions.DisabledException;
-import pl.minecon724.realweather.weather.exceptions.ProviderException;
 import pl.minecon724.realweather.weather.provider.Provider;
 
 public class WeatherCommander {
@@ -17,7 +14,7 @@ public class WeatherCommander {
     RW plugin;
 
     boolean enabled;
-    List<String> worlds;
+    List<String> worldNames;
     String providerName;
     Provider provider;
     ConfigurationSection providerConfig;
@@ -36,13 +33,13 @@ public class WeatherCommander {
      * @throws ProviderException if invalid provider config
      */
     public void init(ConfigurationSection config)
-            throws DisabledException, ProviderException {
+            throws DisabledException, IllegalArgumentException {
         enabled = config.getBoolean("enabled");
 
         if (!enabled)
             throw new DisabledException();
 
-        worlds = config.getStringList("worlds");
+        worldNames = config.getStringList("worlds");
 
         providerName = config.getString("provider.choice");
 
@@ -51,13 +48,16 @@ public class WeatherCommander {
             .getConfigurationSection(providerName);
 
         provider = Providers.getByName(providerName, providerConfig);
+        if (provider == null)
+            throw new IllegalArgumentException("Invalid provider: " + providerName);
         provider.init();
+
+        plugin.getServer().getPluginManager().registerEvents(
+            new WeatherChanger(worldNames), plugin);
     }
 
     public void start() {
-        getStateTask = new GetStateTask(provider,
-                        worldMap,
-                        new ArrayList<World>());
+        getStateTask = new GetStateTask(provider, worldMap);
         
         getStateTask.runTaskTimerAsynchronously(plugin, 0, 1200);
     }

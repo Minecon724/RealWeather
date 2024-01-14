@@ -44,7 +44,7 @@ map:
     # for example; if a player's position on map converts to 94 degrees (out of bounds), it becomes -86 degrees
     wrap: true
 
-realtime:
+time:
   # warning: this removes sleep
   enabled: false
 
@@ -59,15 +59,9 @@ realtime:
   timezone: 'auto'
 
   # x day cycles / 24 hrs
-  timeScale: 1.0
+  scale: 1.0
 
-  # How often should we recalculate the time (in ticks)
-  # Very minimal impact on performance
-  interval: 1
-
-  # makes time visible to players not in sync with server
-  virtual: false
-
-  # if above true, locks the server's time (in ticks)
-  # -1 to disable
-  lock: 0
+  # TODO
+  # time based on... time?
+  # uses settings from map
+  real: false

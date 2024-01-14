@@ -5,24 +5,17 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.scheduler.BukkitRunnable;
 
-public class RTTask extends BukkitRunnable {
+public class RealTimeTask extends BukkitRunnable {
     double timeScale;
     ZoneId timezone;
-    List<World> worlds;
+    List<World> worlds = new ArrayList<>();
 
-    public RTTask(double timeScale, ZoneId timezone, List<String> worlds) {
+    public RealTimeTask(double timeScale, ZoneId timezone) {
         this.timeScale = timeScale;
         this.timezone = timezone;
-        this.worlds = new ArrayList<World>();
-        for (String s : worlds) {
-            World world = Bukkit.getWorld(s);
-            if (world == null) continue;
-            this.worlds.add(world);
-        }
     }
 
     @Override
