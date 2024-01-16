@@ -10,7 +10,7 @@ import pl.minecon724.realweather.weather.exceptions.DisabledException;
 import pl.minecon724.realweather.weather.provider.Provider;
 
 public class WeatherCommander {
-    WorldMap worldMap;
+    private WorldMap worldMap = WorldMap.getInstance();
     RW plugin;
 
     boolean enabled;
@@ -21,8 +21,7 @@ public class WeatherCommander {
 
     GetStateTask getStateTask;
 
-    public WeatherCommander(WorldMap worldMap, RW plugin) {
-        this.worldMap = worldMap;
+    public WeatherCommander(RW plugin) {
         this.plugin = plugin;
     }
     
@@ -34,6 +33,7 @@ public class WeatherCommander {
      */
     public void init(ConfigurationSection config)
             throws DisabledException, IllegalArgumentException {
+
         enabled = config.getBoolean("enabled");
 
         if (!enabled)

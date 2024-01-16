@@ -61,7 +61,8 @@ time:
   # x day cycles / 24 hrs
   scale: 1.0
 
-  # TODO
   # time based on... time?
+  # each player has time offset like timezones
+  # uses timezone as base, unless auto
   # uses settings from map
-  real: false
+  per_player: false

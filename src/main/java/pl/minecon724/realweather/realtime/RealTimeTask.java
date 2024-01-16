@@ -2,7 +2,6 @@ package pl.minecon724.realweather.realtime;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.World;
@@ -11,11 +10,12 @@ import org.bukkit.scheduler.BukkitRunnable;
 public class RealTimeTask extends BukkitRunnable {
     double timeScale;
     ZoneId timezone;
-    List<World> worlds = new ArrayList<>();
+    List<World> worlds;
 
-    public RealTimeTask(double timeScale, ZoneId timezone) {
+    public RealTimeTask(double timeScale, ZoneId timezone, List<World> worlds) {
         this.timeScale = timeScale;
         this.timezone = timezone;
+        this.worlds = worlds;
     }
 
     @Override

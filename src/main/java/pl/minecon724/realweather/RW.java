@@ -22,11 +22,11 @@ public class RW extends JavaPlugin {
 		saveDefaultConfig();
 		config = getConfig();
 
-		WorldMap worldMap = WorldMap.fromConfig(
+		WorldMap.init(
 			config.getConfigurationSection("map")
 		);
 
-		WeatherCommander weatherCommander = new WeatherCommander(worldMap, this);
+		WeatherCommander weatherCommander = new WeatherCommander(this);
 		try {
 			weatherCommander.init(
 				config.getConfigurationSection("weather")

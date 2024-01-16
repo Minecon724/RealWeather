@@ -6,9 +6,17 @@ import org.bukkit.entity.Player;
 import pl.minecon724.realweather.map.exceptions.GeoIPException;
 
 public class WorldMap {
+    private static WorldMap INSTANCE;
+
     private final Type type;
 
     private Coordinates point;
+
+    public static WorldMap getInstance() {
+        if (INSTANCE == null)
+            throw new NullPointerException("No WorldMap");
+        return INSTANCE;
+    }
 
     public WorldMap(Type type,
             Coordinates point) {
@@ -16,7 +24,7 @@ public class WorldMap {
         this.point = point;
     }
 
-    public static WorldMap fromConfig(ConfigurationSection config)
+    public static void init(ConfigurationSection config)
             throws IllegalArgumentException {
 
         Type type;
@@ -49,10 +57,7 @@ public class WorldMap {
             );
         }
 
-        WorldMap worldMap = new WorldMap(type, point);
-
-        return worldMap;
-
+        INSTANCE = new WorldMap(type, point);
     }
 
     /**

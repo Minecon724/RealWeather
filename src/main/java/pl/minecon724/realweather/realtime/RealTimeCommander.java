@@ -19,8 +19,12 @@ public class RealTimeCommander implements Listener {
     List<String> worldNames;
     double scale;
     ZoneId timezone;
+    boolean perPlayer;
+
+    volatile List<World> worlds;
 
     RealTimeTask task;
+    PlayerTimeSyncTask playerTimeSyncTask;
     
     public RealTimeCommander(RW plugin) {
         this.plugin = plugin;
@@ -39,16 +43,20 @@ public class RealTimeCommander implements Listener {
 		}
 
         worldNames = config.getStringList("worlds");
-
 		scale = config.getDouble("scale");
+        perPlayer = config.getBoolean("per_player");
 
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
     }
 
     public void start() {
-        task = new RealTimeTask(scale, timezone);
+        task = new RealTimeTask(scale, timezone, worlds);
 
         task.runTaskTimer(plugin, 0, 1);
+
+        if (perPlayer) {
+            playerTimeSyncTask = new PlayerTimeSyncTask(worlds);
+        }
     }
 
     @EventHandler
@@ -56,13 +64,13 @@ public class RealTimeCommander implements Listener {
         World world = event.getWorld();
 
         if (worldNames.contains(world.getName()))
-            task.worlds.add(world);
+            worlds.add(world);
     }
 
     @EventHandler
     public void onWorldUnload(WorldUnloadEvent event) {
         World world = event.getWorld();
 
-        task.worlds.remove(world);
+        worlds.remove(world);
     }
 }
