@@ -17,8 +17,9 @@ jobs:
       - name: mvn clean package
         run: mvn clean package
 
-      - run: mkdir staging && cp target/*.jar staging
+      - name: Upload artifact
       - uses: actions/upload-artifact@v3
         with:
           name: Package
-          path: staging
+          path: target/*.jar
+          if-no-files-found: error
