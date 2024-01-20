@@ -53,12 +53,11 @@ time:
 
   # "auto" to use server's timezone
   # Alternatively choose one of these: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List
-  # if "real" each player's timezone is varied based on where they are
-  # config from map.globe is used, also forces virtual
   # WARNING: it is purely cosmetical 
   timezone: 'auto'
 
   # x day cycles / 24 hrs
+  # basically how many Minecraft days during a real day
   scale: 1.0
 
   # time based on... time?

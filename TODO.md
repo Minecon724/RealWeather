@@ -1,7 +1,14 @@
+Milestone: yesterday
+- fix bugs
+
+Milestone: 0.5.1
 - local maxmind
-- account for real sun movement, not just time
 - readd metrics
-- fix realtime
 - cache cleaning
-- prevent packets
+
+Milestone: 0.6.0
+- account for real sun movement, not just time
+
+Milestone: future
+- weather simulator (weather is clientside rn and doesnt have things such as lightning or other effects)
 - tests

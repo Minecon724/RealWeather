@@ -1,8 +1,12 @@
 package pl.minecon724.realweather.realtime;
 
 import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.bukkit.GameRule;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.event.EventHandler;
@@ -14,17 +18,18 @@ import pl.minecon724.realweather.RW;
 import pl.minecon724.realweather.weather.exceptions.DisabledException;
 
 public class RealTimeCommander implements Listener {
-    RW plugin;
+    private RW plugin;
 
-    List<String> worldNames;
-    double scale;
-    ZoneId timezone;
-    boolean perPlayer;
+    private List<String> worldNames;
+    private double scale;
+    private ZoneId timezone;
+    private boolean perPlayer;
 
-    volatile List<World> worlds;
+    private volatile List<World> worlds = new ArrayList<>();
+    private Map<World, Boolean> savedGamerule = new HashMap<>();
 
-    RealTimeTask task;
-    PlayerTimeSyncTask playerTimeSyncTask;
+    private RealTimeTask task;
+    private PlayerTimeSyncTask playerTimeSyncTask;
     
     public RealTimeCommander(RW plugin) {
         this.plugin = plugin;
@@ -50,12 +55,16 @@ public class RealTimeCommander implements Listener {
     }
 
     public void start() {
-        task = new RealTimeTask(scale, timezone, worlds);
+        // to save processing, run only when necessary
+        long period = (long) Math.ceil(72 / scale);
+        period = Math.max(period, 1);
 
-        task.runTaskTimer(plugin, 0, 1);
+        task = new RealTimeTask(scale, timezone, worlds);
+        task.runTaskTimer(plugin, 0, period);
 
         if (perPlayer) {
-            playerTimeSyncTask = new PlayerTimeSyncTask(worlds);
+            playerTimeSyncTask = new PlayerTimeSyncTask(scale, worlds);
+            playerTimeSyncTask.runTaskTimerAsynchronously(plugin, 0, 40);
         }
     }
 
@@ -63,8 +72,12 @@ public class RealTimeCommander implements Listener {
     public void onWorldLoad(WorldLoadEvent event) {
         World world = event.getWorld();
 
-        if (worldNames.contains(world.getName()))
+        if (worldNames.contains(world.getName())) {
             worlds.add(world);
+
+            savedGamerule.put(world, world.getGameRuleValue(GameRule.DO_DAYLIGHT_CYCLE));
+            world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false);
+        }
     }
 
     @EventHandler
@@ -72,5 +85,8 @@ public class RealTimeCommander implements Listener {
         World world = event.getWorld();
 
         worlds.remove(world);
+        if (savedGamerule.containsKey(world)) {
+            world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, savedGamerule.remove(world));
+        }
     }
 }

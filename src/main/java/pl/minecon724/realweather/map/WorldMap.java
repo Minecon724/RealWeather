@@ -30,7 +30,7 @@ public class WorldMap {
         Type type;
 
         try {
-            type = Type.valueOf(config.getString("type"));
+            type = Type.valueOf(config.getString("type").toUpperCase());
         } catch (NullPointerException e) {
             throw new IllegalArgumentException("Invalid type");
         }

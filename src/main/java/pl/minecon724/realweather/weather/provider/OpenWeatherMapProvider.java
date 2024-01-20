@@ -1,12 +1,14 @@
 package pl.minecon724.realweather.weather.provider;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import pl.minecon724.realweather.map.Coordinates;
@@ -30,7 +32,7 @@ public class OpenWeatherMapProvider implements Provider {
 		}
 	}
 
-	public State request_state(Coordinates coordinates) {
+	public State request_state(Coordinates coordinates) throws IOException {
 		JSONObject json = new JSONObject();
 		
 		try {
@@ -48,10 +50,17 @@ public class OpenWeatherMapProvider implements Provider {
 			}
 			is.close();
 			json = new JSONObject(sb.toString());
-		} catch (Exception e) { e.printStackTrace(); }
+		} catch (Exception e) {
+			throw new IOException("Couldn't contact openweathermap");
+		}
 
-		int stateId = json.getJSONArray("weather")
-			.getJSONObject(0).getInt("id");
+		int stateId;
+		try {
+			stateId = json.getJSONArray("weather")
+				.getJSONObject(0).getInt("id");
+		} catch (JSONException e) {
+			throw new IOException("Invalid data from openweathermap");
+		}
 
 		// Here comes the mess
 		Condition condition = Condition.CLEAR;
@@ -150,6 +159,7 @@ public class OpenWeatherMapProvider implements Provider {
 					level = ConditionLevel.EXTREME;
 			}
 		}
+		
 		State state = new State(condition, level);
 		return state;
 	}

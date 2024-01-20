@@ -1,14 +1,16 @@
 package pl.minecon724.realweather.weather;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import pl.minecon724.realweather.RW;
+import pl.minecon724.realweather.SubLogger;
 import pl.minecon724.realweather.map.Coordinates;
 import pl.minecon724.realweather.map.WorldMap;
 import pl.minecon724.realweather.map.WorldMap.Type;
@@ -19,68 +21,79 @@ import pl.minecon724.realweather.weather.provider.Provider;
 
 public class GetStateTask extends BukkitRunnable {
 
-    Logger logger = Logger.getLogger("weather scheduler");
+    private SubLogger subLogger = new SubLogger("weather updater");
 
-    Provider provider;
-    WorldMap worldMap;
+    private RW plugin;
+    private Provider provider;
+    private WorldMap worldMap;
 
-    State storedState;
-    Map<Player, State> playerStoredState = new HashMap<>();
-    PluginManager pluginManager = Bukkit.getPluginManager();
+    private State storedState;
+    private Map<Player, State> playerStoredState = new HashMap<>();
+    private PluginManager pluginManager = Bukkit.getPluginManager();
 
     public GetStateTask(
+        RW plugin,
         Provider provider,
         WorldMap worldMap
     ) {
+        this.plugin = plugin;
         this.provider = provider;
         this.worldMap = worldMap;
     }
 
-    // That's a lot of variables
+    private void callEvent(Player player, State storedState, State state) {
+        new BukkitRunnable() {
+
+            @Override
+            public void run() {
+                pluginManager.callEvent(
+                    new WeatherSyncEvent(player, storedState, state)
+                );
+            }
+            
+        }.runTask(plugin);
+    }
 
     @Override
     public void run() {
-
-        if (worldMap.getType() == Type.POINT) {
-            Coordinates coordinates;
-            try {
-                coordinates = worldMap.getCoordinates(null);
-            } catch (GeoIPException e) { return; }
-            State state = provider.request_state(coordinates);
-            
-            if (!state.equals(storedState)) {
-                pluginManager.callEvent(
-                    new WeatherSyncEvent(null, storedState, state)
-                );
-
-                storedState = state;
-            }
-
-        } else {
-            for (Player player : Bukkit.getOnlinePlayers()) {
+        try {
+            if (worldMap.getType() == Type.POINT) {
                 Coordinates coordinates;
-
                 try {
-                    coordinates = worldMap.getCoordinates(player);
-                } catch (GeoIPException e) {
-                    logger.info("GeoIP error for " + player.getName());
-                    e.printStackTrace();
-                    continue;
-                }
-                
+                    coordinates = worldMap.getCoordinates(null);
+                } catch (GeoIPException e) { return; }
                 State state = provider.request_state(coordinates);
+                
+                if (!state.equals(storedState)) {
+                    callEvent(null, storedState, state);
+                    storedState = state;
+                }
 
-                if (!state.equals(playerStoredState.get(player))) {
-                    pluginManager.callEvent(
-                        new WeatherSyncEvent(
-                            player,
-                            playerStoredState.get(player),
-                            state)
-                    );
+            } else {
+                for (Player player : Bukkit.getOnlinePlayers()) {
+                    Coordinates coordinates;
 
-                    playerStoredState.put(player, state);
+                    try {
+                        coordinates = worldMap.getCoordinates(player);
+                    } catch (GeoIPException e) {
+                        subLogger.info("GeoIP error for %s", player.getName());
+                        e.printStackTrace();
+                        continue;
+                    }
+                    
+                    State state = provider.request_state(coordinates);
+
+                    if (!state.equals(playerStoredState.get(player))) {
+                        callEvent(player,
+                                playerStoredState.get(player),
+                                state);
+
+                        playerStoredState.put(player, state);
+                    }
                 }
             }
+        } catch (IOException e) {
+            subLogger.info("Error updating: %s", e.getMessage());
         }
         
     }

@@ -1,25 +1,30 @@
 package pl.minecon724.realweather.weather;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.bukkit.configuration.ConfigurationSection;
 
 import pl.minecon724.realweather.RW;
+import pl.minecon724.realweather.SubLogger;
+import pl.minecon724.realweather.map.Coordinates;
 import pl.minecon724.realweather.map.WorldMap;
 import pl.minecon724.realweather.weather.exceptions.DisabledException;
 import pl.minecon724.realweather.weather.provider.Provider;
 
 public class WeatherCommander {
     private WorldMap worldMap = WorldMap.getInstance();
-    RW plugin;
+    private RW plugin;
 
-    boolean enabled;
-    List<String> worldNames;
-    String providerName;
-    Provider provider;
-    ConfigurationSection providerConfig;
+    private boolean enabled;
+    private List<String> worldNames;
+    private String providerName;
+    private Provider provider;
+    private ConfigurationSection providerConfig;
 
-    GetStateTask getStateTask;
+    private GetStateTask getStateTask;
+
+    private SubLogger subLogger = new SubLogger("weather");
 
     public WeatherCommander(RW plugin) {
         this.plugin = plugin;
@@ -52,13 +57,23 @@ public class WeatherCommander {
             throw new IllegalArgumentException("Invalid provider: " + providerName);
         provider.init();
 
+        try {
+            provider.request_state(new Coordinates(0, 0));
+        } catch (IOException e) {
+            subLogger.info("Provider test failed, errors may occur", new Object[0]);
+            e.printStackTrace();
+        }
+
         plugin.getServer().getPluginManager().registerEvents(
             new WeatherChanger(worldNames), plugin);
+
+        subLogger.info("done", new Object[0]);
     }
 
     public void start() {
-        getStateTask = new GetStateTask(provider, worldMap);
+        getStateTask = new GetStateTask(plugin, provider, worldMap);
         
         getStateTask.runTaskTimerAsynchronously(plugin, 0, 1200);
+        subLogger.info("started", new Object[0]);
     }
 }

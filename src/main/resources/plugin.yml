@@ -1,6 +1,7 @@
 name: RealWeather
 version: ${project.version}
 api-version: 1.16
+load: STARTUP
 author: Minecon724
 main: pl.minecon724.realweather.RW
 libraries:

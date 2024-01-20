@@ -22,6 +22,8 @@ public class RW extends JavaPlugin {
 		saveDefaultConfig();
 		config = getConfig();
 
+		SubLogger.init(getLogger());
+
 		WorldMap.init(
 			config.getConfigurationSection("map")
 		);
