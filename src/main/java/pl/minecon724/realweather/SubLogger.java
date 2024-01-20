@@ -4,11 +4,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class SubLogger {
-    private static Logger logger;
+    private static Logger LOGGER;
+    private static boolean ENABLED;
     private String name;
 
-    static void init(Logger loger) {
-        logger = loger;
+    static void init(Logger logger, boolean enabled) {
+        LOGGER = logger;
+        ENABLED = enabled;
     }
 
     public SubLogger(String name) {
@@ -16,11 +18,13 @@ public class SubLogger {
     }
 
     public void log(Level level, String format, Object... args) {
+        if (!ENABLED) return;
+
         Object[] combinedArgs = new Object[args.length + 1];
         combinedArgs[0] = name;
         System.arraycopy(args, 0, combinedArgs, 1, args.length);
 
-        logger.log(level, String.format("[%s] " + format, combinedArgs));
+        LOGGER.log(level, String.format("[%s] " + format, combinedArgs));
     }
 
     public void info(String format, Object... args) {

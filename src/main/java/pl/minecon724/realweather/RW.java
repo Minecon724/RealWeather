@@ -22,7 +22,10 @@ public class RW extends JavaPlugin {
 		saveDefaultConfig();
 		config = getConfig();
 
-		SubLogger.init(getLogger());
+		SubLogger.init(
+			getLogger(),
+			config.getBoolean("logging", false)
+		);
 
 		WorldMap.init(
 			config.getConfigurationSection("map")
