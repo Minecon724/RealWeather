@@ -1,30 +1,48 @@
 package pl.minecon724.realweather.map;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.URL;
 import java.util.HashMap;
-import java.util.Map;
 
-import com.maxmind.geoip2.WebServiceClient;
-import com.maxmind.geoip2.exception.GeoIp2Exception;
-
+import pl.minecon724.realweather.SubLogger;
+import pl.minecon724.realweather.geoip.DatabaseDownloader;
+import pl.minecon724.realweather.geoip.GeoIPDatabase;
+import pl.minecon724.realweather.geoip.IPUtils;
 import pl.minecon724.realweather.map.exceptions.GeoIPException;
 
 public class GeoLocator {
     private static GeoLocator INSTANCE = null;
 
-    private WebServiceClient client;
-    private Map<InetAddress, Coordinates> cache;
+    private SubLogger subLogger = new SubLogger("geolocator");
+    private GeoIPDatabase database;
+    private HashMap<InetAddress, Coordinates> cache = new HashMap<>();
 
-    public static void init(int accountId, String apiKey) {
+    public static void init(File databaseFile, String downloadUrl) throws IOException {
         INSTANCE = new GeoLocator(
-            new WebServiceClient.Builder(accountId, apiKey)
-            .host("geolite.info").build());
+            new GeoIPDatabase());
+
+        INSTANCE.load(databaseFile, downloadUrl);
     }
     
-    public GeoLocator(WebServiceClient client) {
-        this.client = client;
-        this.cache = new HashMap<>();
+    public GeoLocator(GeoIPDatabase database) {
+        this.database = database;
+    }
+
+    public void load(File databaseFile, String downloadUrl) throws IOException {
+        subLogger.info("This product includes GeoLite2 data created by MaxMind, available from https://www.maxmind.com");
+
+        try {
+            database.read(databaseFile);
+        } catch (FileNotFoundException e) {
+            new DatabaseDownloader(new URL(downloadUrl))
+                    .download(databaseFile, false);
+            database.read(databaseFile);
+        }
+
+        subLogger.info("Database: %s", INSTANCE.database.getTimestamp());
     }
 
     /**
@@ -34,35 +52,37 @@ public class GeoLocator {
      * @throws GeoIp2Exception 
      * @throws IOException 
      */
-    public static Coordinates getCoordinates(InetAddress address)
+    public static Coordinates getCoordinates(InetAddress inetAddress)
             throws GeoIPException {
 
-        GeoLocator instance = INSTANCE;
-
-        Coordinates coordinates = null;
-
-        coordinates = instance.lookup(address);
+        Coordinates coordinates = INSTANCE.cache.get(inetAddress);
         if (coordinates != null)
             return coordinates;
 
-        try {
-            coordinates = Coordinates.fromGeoIpLocation(
-                instance.client.city(address).getLocation()
+        byte[] address = inetAddress.getAddress();
+        byte subnet = 32;
+
+        while (coordinates == null) {
+            if (subnet == 0) {
+                INSTANCE.subLogger.info("Not found :(");
+                coordinates = new Coordinates(0, 0);
+                break;
+            }
+
+            int query = IPUtils.toInt(address);
+
+            coordinates = INSTANCE.database.entries.get(
+                query
             );
-        } catch (IOException | GeoIp2Exception e) {
-            throw new GeoIPException(e.getMessage());
+            
+            INSTANCE.subLogger.info("trying %s/%d = %d", IPUtils.toString(address), subnet, query);
+
+            address = IPUtils.getSubnetStart(address, --subnet);
         }
 
-        instance.store(address, coordinates);
+        INSTANCE.subLogger.info("Done, caching");
+        INSTANCE.cache.put(inetAddress, coordinates);
 
         return coordinates;
-    }
-
-    private Coordinates lookup(InetAddress address) {
-        return this.cache.get(address);
-    }
-
-    private void store(InetAddress address, Coordinates coordinates) {
-        this.cache.put(address, coordinates);
     }
 }

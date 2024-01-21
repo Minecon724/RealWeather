@@ -1,35 +1,46 @@
 package pl.minecon724.realweather;
 
-import com.maxmind.geoip2.WebServiceClient;
+import java.io.IOException;
+import java.util.logging.Logger;
 
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import pl.minecon724.realweather.map.WorldMap;
 import pl.minecon724.realweather.realtime.RealTimeCommander;
 import pl.minecon724.realweather.weather.WeatherCommander;
-import pl.minecon724.realweather.weather.exceptions.DisabledException;
+import pl.minecon724.realweather.weather.exceptions.ModuleDisabledException;
 
-public class RW extends JavaPlugin {
-	FileConfiguration config;
+public class RealWeatherPlugin extends JavaPlugin {
 
-	WebServiceClient client = null;
+	private final Logger logger = getLogger();
+	
+	private FileConfiguration config;
 
 	@Override
 	public void onEnable() {
-		long start = System.currentTimeMillis();
-
+		
 		saveDefaultConfig();
 		config = getConfig();
 
 		SubLogger.init(
-			getLogger(),
+			logger,
 			config.getBoolean("logging", false)
 		);
 
-		WorldMap.init(
-			config.getConfigurationSection("map")
-		);
+		ConfigurationSection mapConfigurationSection = config.getConfigurationSection("map");
+
+		try {
+			WorldMap.init(
+				mapConfigurationSection,
+				getDataFolder()
+			);
+		} catch (IOException e) {
+			logger.severe("Unable to initialize WorldMap:");
+			e.printStackTrace();
+			getServer().getPluginManager().disablePlugin(this);
+		}
 
 		WeatherCommander weatherCommander = new WeatherCommander(this);
 		try {
@@ -37,9 +48,10 @@ public class RW extends JavaPlugin {
 				config.getConfigurationSection("weather")
 			);
 			weatherCommander.start();
-		} catch (DisabledException e) {
-			getLogger().info("Weather module disabled");
+		} catch (ModuleDisabledException e) {
+			logger.info("Weather is disabled by user");
 		} catch (IllegalArgumentException e) {
+			logger.severe("Couldn't initialize weather provider:");
 			e.printStackTrace();
 			getServer().getPluginManager().disablePlugin(this);
 		}
@@ -50,11 +62,9 @@ public class RW extends JavaPlugin {
 				config.getConfigurationSection("time")
 			);
 			realTimeCommander.start();
-		} catch (DisabledException e) {
-			getLogger().info("Time module disabled");
+		} catch (ModuleDisabledException e) {
+			logger.info("Time is disabled by user");
 		}
 
-		long end = System.currentTimeMillis();
-		this.getLogger().info( String.format( this.getName() + " enabled! (%s ms)", Long.toString( end-start ) ) );
 	}
 }

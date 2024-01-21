@@ -26,7 +26,7 @@ public class WeatherChanger implements Listener {
     @EventHandler
     public void onWorldLoad(WorldLoadEvent event) {
         World world = event.getWorld();
-        subLogger.info("World %s is loading", world.getName());
+        subLogger.info("World %s has been loaded", world.getName());
 
         if (worldNames.contains(world.getName())) {
             worlds.add(world);

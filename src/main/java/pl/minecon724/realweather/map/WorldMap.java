@@ -1,5 +1,8 @@
 package pl.minecon724.realweather.map;
 
+import java.io.File;
+import java.io.IOException;
+
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
@@ -24,8 +27,8 @@ public class WorldMap {
         this.point = point;
     }
 
-    public static void init(ConfigurationSection config)
-            throws IllegalArgumentException {
+    public static void init(ConfigurationSection config, File dataFolder)
+            throws IOException {
 
         Type type;
 
@@ -45,8 +48,8 @@ public class WorldMap {
 
         } else if (type == Type.PLAYER) {
             GeoLocator.init(
-                config.getInt("player.geolite2_accountId"), 
-                config.getString("player.geolite2_api_key")
+                dataFolder.toPath().resolve("geoip/ipv4.geo.gz").toFile(),
+                config.getString("player.download_url", "https://inferior.network/geoip/")
             );
 
         } else if (type == Type.GLOBE) {

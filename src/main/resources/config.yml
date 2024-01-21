@@ -25,9 +25,7 @@ map:
     longitude: -89.485937
 
   player:
-    # Get your own @ https://www.maxmind.com/en/geolite2/signup
-    geolite2_accountId: 710438
-    geolite2_api_key: 'qLeseHp4QNQcqRGn'
+    empty: for now
 
   globe:
     # Valid latitude range: -90 to 90

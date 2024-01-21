@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>pl.minecon724</groupId>
   <artifactId>realweather</artifactId>
-  <version>0.5.0.1</version>
+  <version>0.5.1-DEV</version>
 
   <properties>
     <maven.compiler.source>17</maven.compiler.source>
@@ -24,15 +24,9 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.json</groupId>
-	    <artifactId>json</artifactId>
-      <version>20231013</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.maxmind.geoip2</groupId>
-      <artifactId>geoip2</artifactId>
-      <version>4.2.0</version>
+      <groupId>com.google.code.gson</groupId>
+      <artifactId>gson</artifactId>
+      <version>2.10.1</version>
       <scope>provided</scope>
     </dependency>
   </dependencies>

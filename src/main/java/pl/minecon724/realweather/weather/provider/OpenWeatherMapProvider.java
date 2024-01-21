@@ -1,18 +1,19 @@
 package pl.minecon724.realweather.weather.provider;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.charset.Charset;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.google.common.base.Charsets;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.stream.JsonReader;
 
 import pl.minecon724.realweather.map.Coordinates;
 import pl.minecon724.realweather.weather.WeatherState.*;
+import pl.minecon724.realweather.weather.exceptions.WeatherProviderException;
 
 public class OpenWeatherMapProvider implements Provider {
 
@@ -23,6 +24,11 @@ public class OpenWeatherMapProvider implements Provider {
 	public OpenWeatherMapProvider(String apiKey) {
 		this.apiKey = apiKey;
 	}
+
+	@Override
+	public String getName() {
+		return "OpenWeatherMap";
+	}
 	
 	public void init() {
 		try {
@@ -32,34 +38,40 @@ public class OpenWeatherMapProvider implements Provider {
 		}
 	}
 
-	public State request_state(Coordinates coordinates) throws IOException {
-		JSONObject json = new JSONObject();
+	public State request_state(Coordinates coordinates) throws WeatherProviderException {
+		JsonObject jsonObject;
 		
 		try {
 			URL url = new URL(
-				endpoint + String.format("/data/2.5/weather?lat=%s&lon=%s&appid=%s",
-				Double.toString(coordinates.latitude), Double.toString(coordinates.longitude), apiKey
+				String.format("%s/data/2.5/weather?lat=%f&lon=%f&appid=%s",
+				endpoint, coordinates.latitude, coordinates.longitude, apiKey
 			));
 
 			InputStream is = url.openStream();
-			BufferedReader rd = new BufferedReader( new InputStreamReader(is, Charset.forName("UTF-8")) );
-			StringBuilder sb = new StringBuilder();
-			int c;
-			while ((c = rd.read()) != -1) {
-				sb.append((char) c);
-			}
-			is.close();
-			json = new JSONObject(sb.toString());
+			BufferedReader rd = new BufferedReader(
+				new InputStreamReader(is, Charsets.UTF_8));
+
+			JsonReader jsonReader = new JsonReader(rd);
+			jsonObject = new Gson().fromJson(jsonReader, JsonObject.class);
 		} catch (Exception e) {
-			throw new IOException("Couldn't contact openweathermap");
+			e.printStackTrace();
+			throw new WeatherProviderException("Couldn't contact openweathermap");
 		}
 
 		int stateId;
+		
 		try {
-			stateId = json.getJSONArray("weather")
-				.getJSONObject(0).getInt("id");
-		} catch (JSONException e) {
-			throw new IOException("Invalid data from openweathermap");
+			stateId = jsonObject.getAsJsonArray("weather")
+								.get(0).getAsJsonObject()
+								.get("id").getAsInt();
+			/*
+			 * org.json comparison:
+			 * stateId = json.getJSONArray("weather").getJSONObject(0).getInt("id");
+			 * so is it truly worth it? yes see loading jsonobject from inputstream
+			 */
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new WeatherProviderException("Invalid data from openweathermap");
 		}
 
 		// Here comes the mess
@@ -67,60 +79,44 @@ public class OpenWeatherMapProvider implements Provider {
 		ConditionLevel level = ConditionLevel.LIGHT;
 		if (stateId < 300) {
 			condition = Condition.THUNDER;
-			switch (stateId) {
-				case 200:
-				case 210:
-				case 230:
+			switch (stateId % 10) {
+				case 0: // 200, 210, 230
 					level = ConditionLevel.LIGHT;
 					break;
-				case 201:
-				case 211:
-				case 221:
-				case 231:
+				case 1: // 201, 211, 221, 231
 					level = ConditionLevel.MODERATE;
 					break;
-				case 202:
-				case 212:
-				case 232:
+				case 2: // 202, 212, 232
 					level = ConditionLevel.HEAVY;
 			}
 		} else if (stateId < 400) {
 			condition = Condition.DRIZZLE;
-			switch (stateId) {
-				case 300:
-				case 310:
+			switch (stateId % 10) {
+				case 0: // 300, 310
 					level = ConditionLevel.LIGHT;
 					break;
-				case 301:
-				case 311:
-				case 313:
-				case 321:
+				case 1: // 301, 311, 321
+				case 3: // 313
 					level = ConditionLevel.MODERATE;
 					break;
-				case 302:
-				case 312:
-				case 314:
+				case 2: // 302, 312
+				case 4: // 314
 					level = ConditionLevel.HEAVY;
 			}
 		} else if (stateId < 600) {
 			condition = Condition.RAIN;
-			switch (stateId) {
-				case 500:
-				case 520:
+			switch (stateId % 10) {
+				case 0: // 500, 520
 					level = ConditionLevel.LIGHT;
 					break;
-				case 501:
-				case 511:
-				case 521:
-				case 531:
+				case 1: // 501, 511, 521, 531
 					level = ConditionLevel.MODERATE;
 					break;
-				case 502:
-				case 522:
+				case 2: // 502, 522
 					level = ConditionLevel.HEAVY;
 					break;
-				case 503:
-				case 504:
+				case 3: // 503
+				case 4: // 504
 					level = ConditionLevel.EXTREME;
 			}
 		} else if (stateId < 700) {
@@ -165,7 +161,16 @@ public class OpenWeatherMapProvider implements Provider {
 	}
 
 	@Override
-	public String getName() {
-		return "OpenWeatherMap";
+	public State[] request_state(Coordinates[] coordinates) throws WeatherProviderException {
+		// OpenWeatherMap doesnt support bulk requests
+
+		int length = coordinates.length;
+		State[] states = new State[length];
+
+		for (int i=0; i<length; i++) {
+			states[i] = request_state(coordinates[i]);
+		}
+
+		return states;
 	}
 }

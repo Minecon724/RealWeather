@@ -1,7 +1,5 @@
 package pl.minecon724.realweather.map;
 
-import com.maxmind.geoip2.record.Location;
-
 public class Coordinates {
     public double latitude, longitude;
 
@@ -37,12 +35,5 @@ public class Coordinates {
 
     private static double wrapDouble(double min, double max, double val) {
         return min + (val - min) % (max - min);
-    }
-
-    public static Coordinates fromGeoIpLocation(Location location) {
-        return new Coordinates(
-            location.getLatitude(),
-            location.getLongitude()
-        );
     }
 }

@@ -1,20 +1,20 @@
 package pl.minecon724.realweather.weather;
 
-import java.io.IOException;
 import java.util.List;
 
 import org.bukkit.configuration.ConfigurationSection;
 
-import pl.minecon724.realweather.RW;
+import pl.minecon724.realweather.RealWeatherPlugin;
 import pl.minecon724.realweather.SubLogger;
 import pl.minecon724.realweather.map.Coordinates;
 import pl.minecon724.realweather.map.WorldMap;
-import pl.minecon724.realweather.weather.exceptions.DisabledException;
+import pl.minecon724.realweather.weather.exceptions.ModuleDisabledException;
+import pl.minecon724.realweather.weather.exceptions.WeatherProviderException;
 import pl.minecon724.realweather.weather.provider.Provider;
 
 public class WeatherCommander {
     private WorldMap worldMap = WorldMap.getInstance();
-    private RW plugin;
+    private RealWeatherPlugin plugin;
 
     private boolean enabled;
     private List<String> worldNames;
@@ -26,23 +26,23 @@ public class WeatherCommander {
 
     private SubLogger subLogger = new SubLogger("weather");
 
-    public WeatherCommander(RW plugin) {
+    public WeatherCommander(RealWeatherPlugin plugin) {
         this.plugin = plugin;
     }
     
     /**
      * Initialize weather commander
      * @param config "weather" ConfigurationSection
-     * @throws DisabledException if disabled in config
+     * @throws ModuleDisabledException if disabled in config
      * @throws ProviderException if invalid provider config
      */
     public void init(ConfigurationSection config)
-            throws DisabledException, IllegalArgumentException {
+            throws ModuleDisabledException, IllegalArgumentException {
 
         enabled = config.getBoolean("enabled");
 
         if (!enabled)
-            throw new DisabledException();
+            throw new ModuleDisabledException();
 
         worldNames = config.getStringList("worlds");
 
@@ -59,15 +59,15 @@ public class WeatherCommander {
 
         try {
             provider.request_state(new Coordinates(0, 0));
-        } catch (IOException e) {
-            subLogger.info("Provider test failed, errors may occur", new Object[0]);
+        } catch (WeatherProviderException e) {
+            subLogger.severe("Provider test failed, errors may occur");
             e.printStackTrace();
         }
 
         plugin.getServer().getPluginManager().registerEvents(
             new WeatherChanger(worldNames), plugin);
 
-        subLogger.info("done", new Object[0]);
+        subLogger.info("done");
     }
 
     public void start() {

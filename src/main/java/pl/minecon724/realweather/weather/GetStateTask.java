@@ -1,6 +1,5 @@
 package pl.minecon724.realweather.weather;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -9,7 +8,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import pl.minecon724.realweather.RW;
+import pl.minecon724.realweather.RealWeatherPlugin;
 import pl.minecon724.realweather.SubLogger;
 import pl.minecon724.realweather.map.Coordinates;
 import pl.minecon724.realweather.map.WorldMap;
@@ -17,13 +16,14 @@ import pl.minecon724.realweather.map.WorldMap.Type;
 import pl.minecon724.realweather.map.exceptions.GeoIPException;
 import pl.minecon724.realweather.weather.WeatherState.State;
 import pl.minecon724.realweather.weather.events.WeatherSyncEvent;
+import pl.minecon724.realweather.weather.exceptions.WeatherProviderException;
 import pl.minecon724.realweather.weather.provider.Provider;
 
 public class GetStateTask extends BukkitRunnable {
 
     private SubLogger subLogger = new SubLogger("weather updater");
 
-    private RW plugin;
+    private RealWeatherPlugin plugin;
     private Provider provider;
     private WorldMap worldMap;
 
@@ -32,7 +32,7 @@ public class GetStateTask extends BukkitRunnable {
     private PluginManager pluginManager = Bukkit.getPluginManager();
 
     public GetStateTask(
-        RW plugin,
+        RealWeatherPlugin plugin,
         Provider provider,
         WorldMap worldMap
     ) {
@@ -92,8 +92,9 @@ public class GetStateTask extends BukkitRunnable {
                     }
                 }
             }
-        } catch (IOException e) {
-            subLogger.info("Error updating: %s", e.getMessage());
+        } catch (WeatherProviderException e) {
+            subLogger.info("Weather provider error");
+            e.printStackTrace();
         }
         
     }

@@ -14,11 +14,11 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.event.world.WorldUnloadEvent;
 
-import pl.minecon724.realweather.RW;
-import pl.minecon724.realweather.weather.exceptions.DisabledException;
+import pl.minecon724.realweather.RealWeatherPlugin;
+import pl.minecon724.realweather.weather.exceptions.ModuleDisabledException;
 
 public class RealTimeCommander implements Listener {
-    private RW plugin;
+    private RealWeatherPlugin plugin;
 
     private List<String> worldNames;
     private double scale;
@@ -31,15 +31,15 @@ public class RealTimeCommander implements Listener {
     private RealTimeTask task;
     private PlayerTimeSyncTask playerTimeSyncTask;
     
-    public RealTimeCommander(RW plugin) {
+    public RealTimeCommander(RealWeatherPlugin plugin) {
         this.plugin = plugin;
     }
 
     public void init(ConfigurationSection config)
-            throws DisabledException {
+            throws ModuleDisabledException {
 
         if (!config.getBoolean("enabled"))
-            throw new DisabledException();
+            throw new ModuleDisabledException();
 
 		try {
 			timezone = ZoneId.of(config.getString("timezone"));
