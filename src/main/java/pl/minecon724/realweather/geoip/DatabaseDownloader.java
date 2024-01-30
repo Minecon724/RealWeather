@@ -19,6 +19,15 @@ public class DatabaseDownloader {
         this.downloadUrl = downloadUrl;
     }
 
+    public long getDate(boolean ipv6) throws IOException {
+        URL url = new URL(downloadUrl, ipv6 ? "ipv6.geo.gz" : "ipv4.geo.gz");
+        URLConnection connection = url.openConnection();
+        connection.connect();
+
+        long lastModified = connection.getHeaderFieldDate("last-modified", 0);
+        return lastModified;
+    }
+
     // TODO verify
     public void download(File file, boolean ipv6) throws IOException {
         URL url = new URL(downloadUrl, ipv6 ? "ipv6.geo.gz" : "ipv4.geo.gz");

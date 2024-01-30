@@ -5,6 +5,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 
 import pl.minecon724.realweather.SubLogger;
@@ -34,15 +36,28 @@ public class GeoLocator {
     public void load(File databaseFile, String downloadUrl) throws IOException {
         subLogger.info("This product includes GeoLite2 data created by MaxMind, available from https://www.maxmind.com");
 
+        DatabaseDownloader downloader = new DatabaseDownloader(new URL(downloadUrl));
+
         try {
-            database.read(databaseFile);
+            subLogger.info("Checking for update...");
+            database.read(databaseFile, true);
+            
+            long lastModified = downloader.getDate(false);
+            if (database.getTimestamp() < lastModified) {
+                subLogger.info("Updating...");
+                downloader.download(databaseFile, false);
+            }
         } catch (FileNotFoundException e) {
-            new DatabaseDownloader(new URL(downloadUrl))
-                    .download(databaseFile, false);
-            database.read(databaseFile);
+            subLogger.info("Downloading...");
+            downloader.download(databaseFile, false);
         }
 
-        subLogger.info("Database: %s", INSTANCE.database.getTimestamp());
+        subLogger.info("Loading, this may take a while...");
+        database.read(databaseFile, false);
+
+        subLogger.info("Database: %s", 
+                new SimpleDateFormat("dd.MM.yyyy HH:mm:ss")
+                    .format(new Date(INSTANCE.database.getTimestamp() * 1000)));
     }
 
     /**

@@ -4,8 +4,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.zip.GZIPInputStream;
 
@@ -19,13 +17,9 @@ public class GeoIPDatabase {
     private long timestamp;
     public HashMap<Integer, Coordinates> entries = new HashMap<>();
 
-    public void read(File file) throws IOException, FileNotFoundException {
+    public void read(File file, boolean head) throws IOException, FileNotFoundException {
         if (!file.exists()) {
             throw new FileNotFoundException();
-        }
-
-        if (timestamp != 0) {
-            throw new IOException("GeoIPDatabase can only be read once");
         }
 
         FileInputStream fileInputStream = new FileInputStream(file);
@@ -35,27 +29,30 @@ public class GeoIPDatabase {
         byte[] bytes = gzipInputStream.readNBytes(2);
         timestamp = recoverTime(bytes);
         
-        byte[] address;
-        Coordinates coordinates;
+        if (!head) {
         
-        while (true) { // TODO true?
-            System.out.println(gzipInputStream.available());
-            address = gzipInputStream.readNBytes(4);
-            if (address.length == 0)
-                break;
+            byte[] address;
+            Coordinates coordinates;
+            
+            while (true) { // TODO true?
+                System.out.println(gzipInputStream.available());
+                address = gzipInputStream.readNBytes(4);
+                if (address.length == 0)
+                    break;
+    
+                coordinates = recoverCoordinates(gzipInputStream.readNBytes(6));
+    
+                entries.put(IPUtils.toInt(address), coordinates);
+            }
 
-            coordinates = recoverCoordinates(gzipInputStream.readNBytes(6));
-
-            entries.put(IPUtils.toInt(address), coordinates);
         }
 
         gzipInputStream.close();
         fileInputStream.close();
     }
 
-    public String getTimestamp() {
-        return new SimpleDateFormat("dd.MM.yyyy HH:mm:ss")
-                    .format(new Date(timestamp * 1000));
+    public long getTimestamp() {
+        return timestamp;
     }
 
     public byte getFormatVersion() {
